@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -9,18 +8,18 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { GetUser } from './decorators/get-user.decorator';
 import {
-  SignUpDto,
-  SignInDto,
-  VerifyEmailDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  SignInDto,
+  SignUpDto,
+  VerifyEmailDto,
 } from './dto/auth.dto';
 import { JwtGuard } from './guards/jwt.guard';
-import { Request, Response } from 'express';
-import { GetUser } from './decorators/get-user.decorator';
-import { User } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
@@ -82,12 +81,6 @@ export class AuthController {
     });
 
     return { accessToken, user };
-  }
-
-  @UseGuards(JwtGuard)
-  @Get('me')
-  getMe(@GetUser() user: User) {
-    return user;
   }
 
   @UseGuards(JwtGuard)

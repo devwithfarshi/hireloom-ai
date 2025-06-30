@@ -79,14 +79,14 @@ export const authApi = createApi({
         body: data,
       }),
     }),
-    getMe: builder.query<User, void>({
-      query: () => "/auth/me",
-    }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
         url: "/auth/logout",
         method: "POST",
       }),
+    }),
+    getMe: builder.query<User, void>({
+      query: () => "/user/me",
     }),
   }),
 });

@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
-import { useAppDispatch } from "@/lib/hooks";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { useLogoutMutation } from "@/features/auth/authApi";
 import { logout } from "@/features/auth/authSlice";
 import { useAuth } from "@/features/auth/hooks";
-import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/lib/hooks";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -47,7 +47,10 @@ export function Navbar() {
         <div className="flex items-center space-x-4">
           {user && (
             <div className="hidden md:block">
-              <span className="text-sm font-medium">{user.email}</span>
+              <span className="text-sm font-medium">
+                {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                  user.email}
+              </span>
             </div>
           )}
           <Button

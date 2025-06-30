@@ -3,9 +3,10 @@ import { ConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
+import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ConfigModule, PrismaModule, AuthModule, EmailModule],
+  imports: [ConfigModule, PrismaModule, AuthModule, EmailModule, UserModule],
   controllers: [],
   providers: [],
 })
