@@ -1,11 +1,11 @@
-import { Link } from 'react-router-dom';
-import { useAppDispatch } from '@/lib/hooks';
-import { useLogoutMutation } from '@/features/auth/authApi';
-import { logout } from '@/features/auth/authSlice';
-import { useAuth } from '@/features/auth/hooks';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { Spinner } from '@/components/ui/spinner';
+import { Link } from "react-router-dom";
+import { useAppDispatch } from "@/lib/hooks";
+import { useLogoutMutation } from "@/features/auth/authApi";
+import { logout } from "@/features/auth/authSlice";
+import { useAuth } from "@/features/auth/hooks";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -16,9 +16,9 @@ export function Navbar() {
     try {
       await logoutApi().unwrap();
       dispatch(logout());
-      toast.success('Logged out successfully');
+      toast.success("Logged out successfully");
     } catch (error: any) {
-      toast.error(error?.data?.message || 'Failed to logout');
+      toast.error(error?.data?.message || "Failed to logout");
     }
   };
 
@@ -27,7 +27,7 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="text-xl font-bold">
-            ATS-AI
+            HireWise AI
           </Link>
           <div className="hidden md:flex md:space-x-4">
             <Link
@@ -57,8 +57,8 @@ export function Navbar() {
             size="sm"
           >
             {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
-          {isLoading ? 'Logging out...' : 'Logout'}
-        </Button>
+            {isLoading ? "Logging out..." : "Logout"}
+          </Button>
         </div>
       </div>
     </nav>

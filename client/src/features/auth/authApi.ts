@@ -1,15 +1,15 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '../../lib/store';
-import { User, LoginRequest, RegisterRequest, AuthResponse } from './types';
-import { setCredentials, logout } from './authSlice';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { RootState } from "../../lib/store";
+import { logout, setCredentials } from "./authSlice";
+import { AuthResponse, LoginRequest, RegisterRequest, User } from "./types";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3000/api',
-  credentials: 'include',
+  baseUrl: import.meta.env.VITE_API_URL,
+  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set('authorization', `Bearer ${token}`);
+      headers.set("authorization", `Bearer ${token}`);
     }
     return headers;
   },
@@ -20,7 +20,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 
   if (result.error && result.error.status === 401) {
     // Try to get a new token
-    const refreshResult = await baseQuery('/auth/refresh', api, extraOptions);
+    const refreshResult = await baseQuery("/auth/refresh", api, extraOptions);
     if (refreshResult.data) {
       // Store the new token
       api.dispatch(setCredentials(refreshResult.data as AuthResponse));
@@ -35,34 +35,37 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
 };
 
 export const authApi = createApi({
-  reducerPath: 'authApi',
+  reducerPath: "authApi",
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
       query: (credentials) => ({
-        url: '/auth/login',
-        method: 'POST',
+        url: "/auth/login",
+        method: "POST",
         body: credentials,
       }),
     }),
-    register: builder.mutation<{ message: string; user: User }, RegisterRequest>({
+    register: builder.mutation<
+      { message: string; user: User },
+      RegisterRequest
+    >({
       query: (credentials) => ({
-        url: '/auth/register',
-        method: 'POST',
+        url: "/auth/register",
+        method: "POST",
         body: credentials,
       }),
     }),
     verifyEmail: builder.mutation<{ message: string }, { token: string }>({
       query: (data) => ({
-        url: '/auth/verify-email',
-        method: 'POST',
+        url: "/auth/verify-email",
+        method: "POST",
         body: data,
       }),
     }),
     forgotPassword: builder.mutation<{ message: string }, { email: string }>({
       query: (data) => ({
-        url: '/auth/forgot-password',
-        method: 'POST',
+        url: "/auth/forgot-password",
+        method: "POST",
         body: data,
       }),
     }),
@@ -71,18 +74,18 @@ export const authApi = createApi({
       { token: string; password: string }
     >({
       query: (data) => ({
-        url: '/auth/reset-password',
-        method: 'POST',
+        url: "/auth/reset-password",
+        method: "POST",
         body: data,
       }),
     }),
     getMe: builder.query<User, void>({
-      query: () => '/auth/me',
+      query: () => "/auth/me",
     }),
     logout: builder.mutation<{ message: string }, void>({
       query: () => ({
-        url: '/auth/logout',
-        method: 'POST',
+        url: "/auth/logout",
+        method: "POST",
       }),
     }),
   }),

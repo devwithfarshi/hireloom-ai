@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   dev-db:
@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: nest
     networks:
-      - ats-ai
+      - hirewise-ai
 
 networks:
-  ats-ai: {}
+  hirewise-ai: {}
