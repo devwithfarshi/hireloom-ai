@@ -9,7 +9,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
+enum Role {
+  SUPER_ADMIN
+  RECRUITER
+  CANDIDATE
+}
 model User {
   id              Int       @id @default(autoincrement())
   email           String    @unique
@@ -17,8 +21,9 @@ model User {
   firstName       String?
   lastName        String?
   isVerified      Boolean   @default(false)
+  role            Role    @default(RECRUITER)
   verifyToken     String?   @unique
-  refreshToken    String?  
+  refreshToken    String?
   resetToken      String?   @unique
   resetTokenExpiry DateTime?
   createdAt       DateTime  @default(now())
@@ -26,3 +31,4 @@ model User {
 
   @@map("users")
 }
+
