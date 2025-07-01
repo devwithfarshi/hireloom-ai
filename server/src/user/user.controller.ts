@@ -14,7 +14,7 @@ export class UserController {
     return user;
   }
   @Put()
-  async updateUser(@GetUser('id') userId: number, @Body() body: UpdateDto) {
+  async updateUser(@GetUser('id') userId: string, @Body() body: UpdateDto) {
     const updatedUser = await this.userService.updateUser(userId, body);
     return updatedUser;
   }

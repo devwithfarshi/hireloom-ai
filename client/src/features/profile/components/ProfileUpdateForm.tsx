@@ -1,7 +1,4 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
-import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -11,11 +8,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { profileUpdateSchema, ProfileUpdateFormValues } from "../schemas";
-import { useUpdateProfileMutation } from "../userApi";
-import { handleApiError } from "@/lib/errorHandler";
+import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/features/auth/hooks";
+import { handleApiError } from "@/lib/errorHandler";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { ProfileUpdateFormValues, profileUpdateSchema } from "../schemas";
+import { useUpdateProfileMutation } from "../userApi";
 
 export function ProfileUpdateForm() {
   const { user } = useAuth();
@@ -24,14 +25,23 @@ export function ProfileUpdateForm() {
   const form = useForm<ProfileUpdateFormValues>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
-      firstName: user?.firstName || "",
-      lastName: user?.lastName || "",
+      firstName: "",
+      lastName: "",
     },
   });
 
+  useEffect(() => {
+    if (!user) return;
+    form.reset({
+      firstName: user?.firstName || "",
+      lastName: user?.lastName || "",
+    });
+  }, [user]);
+
   const onSubmit = async (values: ProfileUpdateFormValues) => {
     try {
-      await updateProfile(values).unwrap();
+      const data = await updateProfile(values).unwrap();
+
       toast.success("Profile updated successfully");
     } catch (error: any) {
       handleApiError(error);

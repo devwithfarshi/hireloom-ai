@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,12 @@ export function VerifyEmail() {
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("loading");
-
+  const navigate = useNavigate();
   useEffect(() => {
     const verifyToken = async () => {
       if (!token) {
         setError("Verification token is missing");
+        navigate("/login");
         return;
       }
 
@@ -27,6 +28,7 @@ export function VerifyEmail() {
         setVerified(true);
         setStatus("success");
         toast.success("Email verified successfully");
+        navigate("/login");
       } catch (error: any) {
         setError(error?.data?.message || "Failed to verify email");
         handleApiError(error);
@@ -35,7 +37,7 @@ export function VerifyEmail() {
     };
 
     verifyToken();
-  }, [token, verifyEmail]);
+  }, [token]);
 
   if (status === "loading") {
     return (

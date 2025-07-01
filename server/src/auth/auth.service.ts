@@ -166,7 +166,7 @@ export class AuthService {
     }
   }
 
-  async logout(userId: number) {
+  async logout(userId: string) {
     await this.prisma.user.updateMany({
       where: {
         id: userId,
@@ -187,7 +187,7 @@ export class AuthService {
     return bcrypt.hash(password, saltRounds);
   }
 
-  private async updateRefreshToken(userId: number, refreshToken: string) {
+  private async updateRefreshToken(userId: string, refreshToken: string) {
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await this.prisma.user.update({
       where: { id: userId },
@@ -256,7 +256,7 @@ export class AuthService {
     return { message: 'Password reset successfully' };
   }
 
-  private async getTokens(userId: number, email: string) {
+  private async getTokens(userId: string, email: string) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

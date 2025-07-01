@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { useAuth } from '../hooks';
-import { Spinner } from '@/components/ui/spinner';
+import { ReactNode } from "react";
+import { useAuth } from "../hooks";
+import { Spinner } from "@/components/ui/spinner";
 
 interface AuthProviderProps {
   children: ReactNode;

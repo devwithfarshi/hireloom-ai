@@ -1,15 +1,15 @@
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { useEffect } from "react";
-import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import { useGetMeQuery } from "../authApi";
-import { setUser, logout, setLoading } from "../authSlice";
+import { logout, setUser } from "../authSlice";
 
 export const useAuth = () => {
-  const { user, token, isAuthenticated, isLoading } = useAppSelector(
+  const { user, token, isAuthenticated } = useAppSelector(
     (state) => state.auth
   );
   const dispatch = useAppDispatch();
 
-  const { data, error, isSuccess } = useGetMeQuery(undefined, {
+  const { data, error, isLoading, isFetching } = useGetMeQuery(undefined, {
     skip: !isAuthenticated,
   });
 
@@ -18,11 +18,6 @@ export const useAuth = () => {
       dispatch(setUser(data));
     }
   }, [data, dispatch]);
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(setLoading(false));
-    }
-  }, [isSuccess]);
 
   useEffect(() => {
     if (error && isAuthenticated) {
