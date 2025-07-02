@@ -4,9 +4,17 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
+import { CompanyModule } from './company/company.module';
 
 @Module({
-  imports: [ConfigModule, PrismaModule, AuthModule, EmailModule, UserModule],
+  imports: [
+    ConfigModule,
+    PrismaModule,
+    AuthModule,
+    EmailModule,
+    UserModule,
+    CompanyModule,
+  ],
   controllers: [],
   providers: [],
 })
