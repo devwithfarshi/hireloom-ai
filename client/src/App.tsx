@@ -12,9 +12,14 @@ import {
   ResetPasswordPage,
   VerifyEmailPage,
 } from "./features/auth/pages";
-import { ProtectedRoute, AuthProvider } from "./features/auth/components";
+import {
+  ProtectedRoute,
+  OnboardingRoute,
+  AuthProvider,
+} from "./features/auth/components";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
-import { ProfilePage } from "./features/profile/ProfilePage";
+import { ProfilePage, CandidateOnboardingPage } from "./features/profile/pages";
+import { CompanyOnboardingPage } from "./features/company/pages";
 import { AppLayout } from "./components/layout";
 
 const App = () => {
@@ -30,24 +35,37 @@ const App = () => {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-          {/* Protected routes */}
+          {/* Protected routes with onboarding check */}
           <Route element={<ProtectedRoute />}>
+            {/* Onboarding routes */}
             <Route
-              path="/"
-              element={
-                <AppLayout>
-                  <DashboardPage />
-                </AppLayout>
-              }
+              path="/company/onboarding"
+              element={<CompanyOnboardingPage />}
             />
             <Route
-              path="/profile"
-              element={
-                <AppLayout>
-                  <ProfilePage />
-                </AppLayout>
-              }
+              path="/candidate/onboarding"
+              element={<CandidateOnboardingPage />}
             />
+
+            {/* Routes that require completed onboarding */}
+            <Route element={<OnboardingRoute />}>
+              <Route
+                path="/"
+                element={
+                  <AppLayout>
+                    <DashboardPage />
+                  </AppLayout>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <AppLayout>
+                    <ProfilePage />
+                  </AppLayout>
+                }
+              />
+            </Route>
           </Route>
 
           {/* Fallback route */}

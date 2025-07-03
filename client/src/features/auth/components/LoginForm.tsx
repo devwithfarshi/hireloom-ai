@@ -40,6 +40,9 @@ export function LoginForm() {
       const result = await login(values).unwrap();
       dispatch(setCredentials(result));
       toast.success('Logged in successfully');
+      
+      // Always navigate to home page after login
+      // The OnboardingRoute component will handle redirection to onboarding if needed
       navigate('/');
     } catch (error: any) {
       handleApiError(error);

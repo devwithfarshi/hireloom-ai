@@ -1,4 +1,5 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { Role } from '@prisma/client';
 
 export class SignUpDto {
   @IsEmail({}, { message: 'Please provide a valid email' })
@@ -8,6 +9,10 @@ export class SignUpDto {
   @IsNotEmpty()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
   password: string;
+
+  @IsEnum(Role, { message: 'Role must be either RECRUITER or CANDIDATE' })
+  @IsOptional()
+  role?: Role;
 }
 
 export class SignInDto {

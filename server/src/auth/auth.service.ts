@@ -23,7 +23,7 @@ export class AuthService {
   ) {}
 
   async signUp(dto: SignUpDto) {
-    const { email, password } = dto;
+    const { email, password, role } = dto;
 
     // Check if user already exists
     const userExists = await this.prisma.user.findUnique({
@@ -47,6 +47,7 @@ export class AuthService {
         password: hashedPassword,
         verifyToken,
         isVerified: false,
+        role: role || undefined, // Use the provided role or let Prisma use the default
       },
     });
 

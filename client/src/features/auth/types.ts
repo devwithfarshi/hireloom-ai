@@ -4,6 +4,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   isVerified: boolean;
+  role: 'RECRUITER' | 'CANDIDATE' | 'SUPER_ADMIN';
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +25,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
+  role?: 'RECRUITER' | 'CANDIDATE';
 }
 
 export interface AuthResponse {

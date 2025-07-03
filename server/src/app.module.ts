@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
 import { CompanyModule } from './company/company.module';
+import { CandidateProfileModule } from './candidate-profile/candidate-profile.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { CompanyModule } from './company/company.module';
     EmailModule,
     UserModule,
     CompanyModule,
+    CandidateProfileModule,
   ],
   controllers: [],
   providers: [],

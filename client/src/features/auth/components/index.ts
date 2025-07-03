@@ -5,4 +5,5 @@ export * from './ForgotPasswordForm';
 export * from './ResetPasswordForm';
 export * from './VerifyEmail';
 export * from './ProtectedRoute';
+export * from './OnboardingRoute';
 export * from './AuthProvider';
