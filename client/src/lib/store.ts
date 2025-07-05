@@ -1,10 +1,23 @@
-import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
-import { authApi } from '../features/auth/authApi';
-import { userApi } from '../features/profile/userApi';
-import { companyApi } from '../features/company/companyApi';
-import { candidateProfileApi } from '../features/profile/candidateProfileApi';
-import authReducer from '../features/auth/authSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { authApi } from "../features/auth/authApi";
+import authReducer, { logout } from "../features/auth/authSlice";
+import { companyApi } from "../features/company/companyApi";
+import { candidateProfileApi } from "../features/profile/candidateProfileApi";
+import { userApi } from "../features/profile/userApi";
+
+const resetApiOnLogout =
+  (api: { dispatch: (action: any) => void }) =>
+  (next: (action: any) => void) =>
+  (action: any) => {
+    if (action.type === logout.type) {
+      api.dispatch(authApi.util.resetApiState());
+      api.dispatch(userApi.util.resetApiState());
+      api.dispatch(companyApi.util.resetApiState());
+      api.dispatch(candidateProfileApi.util.resetApiState());
+    }
+    return next(action);
+  };
 
 export const store = configureStore({
   reducer: {
@@ -15,12 +28,14 @@ export const store = configureStore({
     [candidateProfileApi.reducerPath]: candidateProfileApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(
-      authApi.middleware,
-      userApi.middleware,
-      companyApi.middleware,
-      candidateProfileApi.middleware
-    ),
+    getDefaultMiddleware()
+      .concat(
+        authApi.middleware,
+        userApi.middleware,
+        companyApi.middleware,
+        candidateProfileApi.middleware
+      )
+      .prepend(resetApiOnLogout),
 });
 
 setupListeners(store.dispatch);
