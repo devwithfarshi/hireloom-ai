@@ -6,6 +6,7 @@ import { useAuth } from "@/features/auth/hooks";
 import { useAppDispatch } from "@/lib/hooks";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -26,8 +27,9 @@ export function Navbar() {
     <nav className="border-b bg-white shadow-sm dark:bg-gray-800">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="text-xl font-bold">
-            HireWise AI
+          <Link to="/" className="flex items-center space-x-2">
+            <img src="/logo/logo-icon.png" alt="HireWise AI Logo" className="h-8 w-8" />
+            <span className="text-xl font-bold">HireWise AI</span>
           </Link>
           <div className="hidden md:flex md:space-x-4">
             <Link

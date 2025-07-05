@@ -1,5 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/lib/store';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { RootState } from "@/lib/store";
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+}
 
 export interface CandidateProfile {
   id: string;
@@ -9,6 +14,7 @@ export interface CandidateProfile {
   resumeUrl: string;
   skills: string[];
   experience: number;
+  socialLinks?: SocialLink[];
   createdAt: string;
   updatedAt: string;
   user?: {
@@ -25,39 +31,42 @@ export interface CreateCandidateProfileRequest {
   resumeUrl: string;
   skills: string[];
   experience: number;
+  socialLinks?: SocialLink[];
 }
 
 export interface UpdateCandidateProfileRequest {
+  id: string;
   location?: string;
   openToRemote?: boolean;
   resumeUrl?: string;
   skills?: string[];
   experience?: number;
+  socialLinks?: SocialLink[];
 }
 
 export const candidateProfileApi = createApi({
-  reducerPath: 'candidateProfileApi',
+  reducerPath: "candidateProfileApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set("authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
   endpoints: (builder) => ({
     getCandidateProfile: builder.query<CandidateProfile, void>({
-      query: () => '/candidate-profile',
+      query: () => "/candidate-profile",
     }),
     createCandidateProfile: builder.mutation<
       CandidateProfile,
       CreateCandidateProfileRequest
     >({
       query: (data) => ({
-        url: '/candidate-profile',
-        method: 'POST',
+        url: "/candidate-profile",
+        method: "POST",
         body: data,
       }),
     }),
@@ -65,11 +74,14 @@ export const candidateProfileApi = createApi({
       CandidateProfile,
       UpdateCandidateProfileRequest
     >({
-      query: (data) => ({
-        url: '/candidate-profile',
-        method: 'PUT',
-        body: data,
-      }),
+      query: (data) => {
+        const { id, ...updateData } = data;
+        return {
+          url: `/candidate-profile/${id}`,
+          method: "PUT",
+          body: updateData,
+        };
+      },
     }),
   }),
 });

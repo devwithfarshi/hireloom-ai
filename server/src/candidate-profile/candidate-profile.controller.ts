@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -26,11 +26,12 @@ export class CandidateProfileController {
     return this.candidateProfileService.findByUserId(userId);
   }
 
-  @Put()
+  @Put(':id')
   updateProfile(
+    @Param('id') id: string,
     @GetUser('id') userId: string,
     @Body() body: UpdateCandidateProfileDto,
   ) {
-    return this.candidateProfileService.update(userId, body);
+    return this.candidateProfileService.update(id, userId, body);
   }
 }

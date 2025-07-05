@@ -14,16 +14,21 @@ import { Switch } from "@/components/ui/switch";
 import { useAuth } from "@/features/auth/hooks";
 import { handleApiError } from "@/lib/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Resolver, useForm } from "react-hook-form";
+import { Resolver, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useUpdateCandidateProfileMutation } from "../candidateProfileApi";
+import { SocialLink, useUpdateCandidateProfileMutation } from "../candidateProfileApi";
 import {
   CandidateProfileFormValues,
+  SocialLinkFormValues,
   candidateProfileSchema,
+  socialLinkSchema,
 } from "../schemas/candidateProfileSchema";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { DialogClose } from "@/components/ui/dialog";
 import { useGetMeQuery } from "@/features/auth/authApi";
+import { Card, CardContent } from "@/components/ui/card";
+import { Trash2, Plus, Github, Linkedin, Globe, Dribbble } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CandidateProfileUpdateFormWithDialog() {
   const { user } = useAuth();
@@ -40,8 +45,28 @@ export function CandidateProfileUpdateFormWithDialog() {
       resumeUrl: "",
       skills: "",
       experience: 0,
+      socialLinks: [],
     },
   });
+  
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "socialLinks",
+  });
+  
+  const [selectedPlatform, setSelectedPlatform] = useState<string>("");
+  
+  const platformOptions = [
+    { value: "linkedin", label: "LinkedIn", icon: <Linkedin className="h-4 w-4" /> },
+    { value: "github", label: "GitHub", icon: <Github className="h-4 w-4" /> },
+    { value: "behance", label: "Behance", icon: <Dribbble className="h-4 w-4" /> },
+    { value: "other", label: "Other", icon: <Globe className="h-4 w-4" /> },
+  ];
+  
+  const getPlatformIcon = (platform: string) => {
+    const option = platformOptions.find(opt => opt.value === platform.toLowerCase());
+    return option?.icon || <Globe className="h-4 w-4" />;
+  };
 
   useEffect(() => {
     if (!user?.candidateProfile) return;
@@ -55,15 +80,23 @@ export function CandidateProfileUpdateFormWithDialog() {
       resumeUrl: user.candidateProfile.resumeUrl || "",
       skills: skillsString,
       experience: user.candidateProfile.experience || 0,
+      socialLinks: user.candidateProfile.socialLinks || [],
     });
   }, [user, form]);
 
   const onSubmit = async (values: CandidateProfileFormValues) => {
     try {
+      if (!user?.candidateProfile?.id) {
+        toast.error("Candidate profile ID not found");
+        return;
+      }
+
       // Format skills from comma-separated string to array
       const formattedValues = {
+        id: user.candidateProfile.id,
         ...values,
         skills: values.skills.split(",").map((skill) => skill.trim()),
+        socialLinks: values.socialLinks || [],
       };
 
       await updateProfile(formattedValues).unwrap();
@@ -81,6 +114,13 @@ export function CandidateProfileUpdateFormWithDialog() {
     } catch (error: any) {
       handleApiError(error);
     }
+  };
+  
+  const handleAddSocialLink = () => {
+    if (!selectedPlatform) return;
+    
+    append({ platform: selectedPlatform, url: "" });
+    setSelectedPlatform("");
   };
 
   return (
@@ -165,6 +205,94 @@ export function CandidateProfileUpdateFormWithDialog() {
                 <Input type="number" min="0" {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="socialLinks"
+          render={() => (
+            <FormItem className="space-y-4">
+              <div>
+                <FormLabel>Social Links</FormLabel>
+                <FormDescription>
+                  Add links to your professional profiles
+                </FormDescription>
+              </div>
+              
+              {fields.length > 0 && (
+                <div className="space-y-2">
+                  {fields.map((field, index) => (
+                    <Card key={field.id}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-shrink-0">
+                            {getPlatformIcon(field.platform)}
+                          </div>
+                          <div className="flex-grow">
+                            <FormField
+                              control={form.control}
+                              name={`socialLinks.${index}.url`}
+                              render={({ field }) => (
+                                <FormItem className="flex-grow">
+                                  <FormControl>
+                                    <Input
+                                      placeholder={`Enter your ${form.getValues(`socialLinks.${index}.platform`)} URL`}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+              
+              <div className="flex items-end gap-2">
+                <div className="flex-grow">
+                  <Select
+                    value={selectedPlatform}
+                    onValueChange={setSelectedPlatform}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {platformOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          <div className="flex items-center gap-2">
+                            {option.icon}
+                            <span>{option.label}</span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddSocialLink}
+                  disabled={!selectedPlatform}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add
+                </Button>
+              </div>
             </FormItem>
           )}
         />

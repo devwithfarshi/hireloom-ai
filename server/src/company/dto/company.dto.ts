@@ -30,12 +30,22 @@ export class CreateCompanyDto {
   @IsNotEmpty({ message: 'Company name is required' })
   @IsString()
   name: string;
+  
   @IsNotEmpty({ message: 'Company industry is required' })
   @IsString()
   industry: string;
+  
   @IsNotEmpty({ message: 'Company location is required' })
   @IsString()
   location: string;
+  
+  @IsOptional()
+  @IsString()
+  companySize?: string;
+  
+  @IsOptional()
+  @IsString()
+  domain?: string;
 }
 
 export class UpdateCompanyDto {
@@ -50,4 +60,12 @@ export class UpdateCompanyDto {
   @IsOptional()
   @IsString()
   location?: string;
+  
+  @IsOptional()
+  @IsString()
+  companySize?: string;
+  
+  @IsOptional()
+  @IsString()
+  domain?: string;
 }

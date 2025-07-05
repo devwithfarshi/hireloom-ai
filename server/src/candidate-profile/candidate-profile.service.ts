@@ -1,13 +1,19 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCandidateProfileDto, UpdateCandidateProfileDto } from './dto/candidate-profile.dto';
+import {
+  CreateCandidateProfileDto,
+  UpdateCandidateProfileDto,
+} from './dto/candidate-profile.dto';
 
 @Injectable()
 export class CandidateProfileService {
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, data: CreateCandidateProfileDto) {
-    // Check if profile already exists for user
     const profileExists = await this.prisma.candidateProfile.findUnique({
       where: {
         userId,
@@ -27,15 +33,23 @@ export class CandidateProfileService {
       throw new BadRequestException('Only candidates can create a profile');
     }
 
+    // Prepare the data for Prisma, ensuring socialLinks is properly formatted as JSON
+    // Extract socialLinks from the data object
+    const { socialLinks, ...restData } = data;
+
+    // Create the prisma data object with the correct type for socialLinks
+    const prismaData = {
+      ...restData,
+      openToRemote: restData.openToRemote || false,
+      userId,
+      // Convert socialLinks to plain objects if they exist
+      ...(socialLinks && {
+        socialLinks: socialLinks.map((link) => ({ ...link })),
+      }),
+    };
+
     return await this.prisma.candidateProfile.create({
-      data: {
-        location: data.location,
-        openToRemote: data.openToRemote || false,
-        resumeUrl: data.resumeUrl,
-        skills: data.skills,
-        experience: data.experience,
-        userId,
-      },
+      data: prismaData,
     });
   }
 
@@ -61,19 +75,30 @@ export class CandidateProfileService {
     return profile;
   }
 
-  async update(userId: string, data: UpdateCandidateProfileDto) {
-    // Check if profile exists
-    const profile = await this.prisma.candidateProfile.findUnique({
-      where: { userId },
+  async update(id: string, userId: string, data: UpdateCandidateProfileDto) {
+    const profile = await this.prisma.candidateProfile.findFirst({
+      where: { 
+        id,
+        userId 
+      },
     });
 
     if (!profile) {
-      throw new NotFoundException(`Profile for user ID ${userId} not found`);
+      throw new NotFoundException(`Profile with ID ${id} not found or you don't have permission to update it`);
     }
 
+    const { socialLinks, ...restData } = data;
+
+    const prismaData = {
+      ...restData,
+      ...(socialLinks && {
+        socialLinks: socialLinks.map((link) => ({ ...link })),
+      }),
+    };
+
     return await this.prisma.candidateProfile.update({
-      where: { userId },
-      data,
+      where: { id },
+      data: prismaData,
     });
   }
 }

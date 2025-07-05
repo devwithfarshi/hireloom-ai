@@ -1,34 +1,33 @@
-import { Link } from "react-router-dom";
-import { useAuth } from "@/features/auth/hooks";
-import { Button } from "@/components/ui/button";
-import {
-  ProfileUpdateFormWithDialog,
-  CandidateProfileUpdateFormWithDialog,
-} from "./components";
-import moment from "moment";
-import {
-  User,
-  Mail,
-  Calendar,
-  Shield,
-  CheckCircle,
-  XCircle,
-  Building,
-  Briefcase,
-  Edit,
-  ArrowLeft,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAuth } from "@/features/auth/hooks";
+import {
+  ArrowLeft,
+  Briefcase,
+  Building,
+  Calendar,
+  CheckCircle,
+  Edit,
+  Mail,
+  Shield,
+  User,
+  XCircle,
+} from "lucide-react";
+import moment from "moment";
+import { Link } from "react-router-dom";
+import {
+  CandidateProfileUpdateFormWithDialog,
+  CompanyProfileUpdateFormWithDialog,
+  ProfileUpdateFormWithDialog,
+} from "./components";
 
 export function ProfilePage() {
   const { user } = useAuth();
@@ -79,7 +78,7 @@ export function ProfilePage() {
             </CardHeader>
             <CardContent>
               {user.candidateProfile ? (
-                <div className="space-y-3">
+                <p className="space-y-3">
                   <p className="flex items-center gap-2">
                     <span className="text-muted-foreground">Location:</span>
                     {user.candidateProfile.location || "Not specified"}
@@ -107,7 +106,25 @@ export function ProfilePage() {
                       ))}
                     </div>
                   </p>
-                </div>
+                  {user.candidateProfile.socialLinks && user.candidateProfile.socialLinks.length > 0 && (
+                    <p className="flex items-start gap-2">
+                      <span className="text-muted-foreground">Social Links:</span>
+                      <div className="flex flex-col gap-1">
+                        {user.candidateProfile.socialLinks.map((link, index) => (
+                          <a 
+                            key={index} 
+                            href={link.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline flex items-center gap-1"
+                          >
+                            {link.platform}
+                          </a>
+                        ))}
+                      </div>
+                    </p>
+                  )}
+                </p>
               ) : (
                 <p className="text-muted-foreground">
                   No candidate profile information available.
@@ -143,15 +160,7 @@ export function ProfilePage() {
                           Update Company Information
                         </DialogTitle>
                       </DialogHeader>
-                      {/* TODO: Implement CompanyProfileUpdateFormWithDialog */}
-                      <div className="py-6 text-center text-muted-foreground">
-                        Company profile editing will be available soon.
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="outline">Close</Button>
-                        </DialogClose>
-                      </DialogFooter>
+                      <CompanyProfileUpdateFormWithDialog />
                     </DialogContent>
                   </Dialog>
                 )}
@@ -168,8 +177,27 @@ export function ProfilePage() {
                     <span className="text-muted-foreground">Industry:</span>
                     {user.company.industry}
                   </p>
+                  {user.company.companySize && (
+                    <p className="flex items-center gap-2">
+                      <span className="text-muted-foreground">Company Size:</span>
+                      {user.company.companySize}
+                    </p>
+                  )}
+                  {user.company.domain && (
+                    <p className="flex items-center gap-2">
+                      <span className="text-muted-foreground">Domain:</span>
+                      <a 
+                        href={`https://${user.company.domain}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        {user.company.domain}
+                      </a>
+                    </p>
+                  )}
                   <p className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Registered :</span>
+                    <span className="text-muted-foreground">Registered:</span>
                     {moment(user.company.createdAt).format("DD MMM YYYY")}
                   </p>
                   <p className="flex items-center gap-2">

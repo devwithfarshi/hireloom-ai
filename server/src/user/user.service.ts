@@ -15,6 +15,8 @@ export class UserService {
         name: true,
         industry: true,
         location: true,
+        companySize: true,
+        createdAt: true,
       },
     });
     if (companyID) {
@@ -34,6 +36,7 @@ export class UserService {
         openToRemote: true,
         location: true,
         experience: true,
+        socialLinks: true,
       },
     });
     if (candidateProfileID) {

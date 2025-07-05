@@ -30,7 +30,12 @@ async function bootstrap() {
   // Global prefix
   app.setGlobalPrefix('api');
   
-  const port = configService.get('PORT') || 3000;
+  // Get port from command line arguments or config or default to 3000
+  const args = process.argv.slice(2);
+  const portArgIndex = args.findIndex(arg => arg === '--port');
+  const portFromArgs = portArgIndex !== -1 && args[portArgIndex + 1] ? parseInt(args[portArgIndex + 1], 10) : null;
+  
+  const port = portFromArgs || configService.get('PORT') || 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}/api`);
 }

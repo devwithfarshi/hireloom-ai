@@ -59,6 +59,8 @@ export class CompanyService {
         name: data.name,
         industry: data.industry,
         location: data.location,
+        companySize: data.companySize,
+        domain: data.domain,
         userId,
       },
     });

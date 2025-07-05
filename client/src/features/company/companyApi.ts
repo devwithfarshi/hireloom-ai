@@ -6,6 +6,8 @@ export interface Company {
   name: string;
   industry: string;
   location: string;
+  companySize?: string;
+  domain?: string;
   userId: string;
   createdAt: string;
   updatedAt: string;
@@ -15,6 +17,8 @@ export interface CreateCompanyRequest {
   name: string;
   industry: string;
   location: string;
+  companySize?: string;
+  domain?: string;
 }
 
 const baseQuery = fetchBaseQuery({
@@ -28,6 +32,15 @@ const baseQuery = fetchBaseQuery({
     return headers;
   },
 });
+
+export interface UpdateCompanyRequest {
+  id: string;
+  name?: string;
+  industry?: string;
+  location?: string;
+  companySize?: string;
+  domain?: string;
+}
 
 export const companyApi = createApi({
   reducerPath: 'companyApi',
@@ -46,7 +59,18 @@ export const companyApi = createApi({
       query: () => '/company',
       providesTags: ['Company'],
     }),
+    updateCompany: builder.mutation<Company, UpdateCompanyRequest>({
+      query: (data: UpdateCompanyRequest) => {
+        const { id, ...updateData } = data;
+        return {
+          url: `/company/${id}`,
+          method: 'PATCH',
+          body: updateData,
+        };
+      },
+      invalidatesTags: ['Company'],
+    }),
   }),
 });
 
-export const { useCreateCompanyMutation, useGetCompanyQuery } = companyApi;
+export const { useCreateCompanyMutation, useGetCompanyQuery, useUpdateCompanyMutation } = companyApi;

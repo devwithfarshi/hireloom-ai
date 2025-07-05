@@ -1,4 +1,16 @@
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Min, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class SocialLink {
+  @IsString()
+  @IsNotEmpty({ message: 'Platform name is required' })
+  platform: string;
+
+  @IsString()
+  @IsUrl({}, { message: 'Please provide a valid URL' })
+  @IsNotEmpty({ message: 'URL is required' })
+  url: string;
+}
 
 export class CreateCandidateProfileDto {
   @IsString()
@@ -22,6 +34,12 @@ export class CreateCandidateProfileDto {
   @Min(0, { message: 'Experience must be a positive number' })
   @IsNotEmpty({ message: 'Experience is required' })
   experience: number;
+  
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SocialLink)
+  socialLinks?: SocialLink[];
 }
 
 export class UpdateCandidateProfileDto {
@@ -46,4 +64,10 @@ export class UpdateCandidateProfileDto {
   @Min(0, { message: 'Experience must be a positive number' })
   @IsOptional()
   experience?: number;
+  
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SocialLink)
+  socialLinks?: SocialLink[];
 }

@@ -15,6 +15,8 @@ DateTime updatedAt
         String name
         String industry
         String location
+        String companySize
+        String domain
         UUID userId FK
         DateTime createdAt
     }
@@ -39,6 +41,7 @@ DateTime updatedAt
         String[] skills "Parsed from resume"
         Int experience "Years"
         Boolean openToRemote
+        JSON socialLinks "Platform and URL pairs"
     }
 
     Application {
