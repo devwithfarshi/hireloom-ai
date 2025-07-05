@@ -66,7 +66,7 @@ export function JobDashboardPage() {
   };
 
   return (
-    <div className="container py-8">
+    <div className="container mx-auto py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold">Job Postings</h1>
@@ -121,7 +121,7 @@ export function JobDashboardPage() {
                   setEmploymentTypeFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="employmentType">
+                <SelectTrigger id="employmentType" className="w-full">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -155,7 +155,7 @@ export function JobDashboardPage() {
                   setActiveFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="status">
+                <SelectTrigger id="status" className="w-full">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>

@@ -1,10 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { JobForm } from "../components/JobForm";
@@ -33,7 +27,7 @@ export function EditJobPage() {
 
   if (isLoadingJob) {
     return (
-      <div className="container max-w-4xl py-8">
+      <div className="container  mx-auto max-w-4xl py-8">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -47,7 +41,7 @@ export function EditJobPage() {
 
   if (error || !job) {
     return (
-      <div className="container max-w-4xl py-8">
+      <div className="container  mx-auto max-w-4xl py-8">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -62,22 +56,13 @@ export function EditJobPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Job</CardTitle>
-          <CardDescription>
-            Update the details of your job posting.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <JobForm
-            initialValues={job}
-            onSubmit={handleSubmit}
-            isLoading={isUpdating}
-          />
-        </CardContent>
-      </Card>
+    <div className="container mx-auto max-w-4xl py-8">
+      <JobForm
+        initialValues={job}
+        onSubmit={handleSubmit}
+        isLoading={isUpdating}
+        title="Edit Job"
+      />
     </div>
   );
 }

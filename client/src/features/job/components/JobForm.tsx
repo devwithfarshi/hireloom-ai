@@ -1,6 +1,16 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import {
   Select,
@@ -10,9 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BriefcaseIcon, ClockIcon, MapPinIcon, TagIcon } from "lucide-react";
 import React from "react";
-import { Controller, Resolver, useForm } from "react-hook-form";
+import { Resolver, useForm } from "react-hook-form";
 import { EmploymentType } from "../jobApi";
 import { JobFormValues, jobFormSchema } from "../schemas";
 
@@ -20,15 +37,16 @@ interface JobFormProps {
   initialValues?: Partial<JobFormValues>;
   onSubmit: (values: JobFormValues) => void;
   isLoading?: boolean;
+  title?: string;
 }
 
-export function JobForm({ initialValues, onSubmit, isLoading }: JobFormProps) {
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<JobFormValues>({
+export function JobForm({
+  initialValues,
+  onSubmit,
+  isLoading,
+  title = "Create Job Listing",
+}: JobFormProps) {
+  const form = useForm<JobFormValues>({
     resolver: zodResolver(jobFormSchema) as Resolver<JobFormValues>,
     defaultValues: {
       title: initialValues?.title || "",
@@ -48,184 +66,256 @@ export function JobForm({ initialValues, onSubmit, isLoading }: JobFormProps) {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       const newTags = [...tags, tagInput.trim()];
       setTags(newTags);
+      form.setValue("tags", newTags);
       setTagInput("");
     }
   };
 
   const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag));
+    const updatedTags = tags.filter((t) => t !== tag);
+    setTags(updatedTags);
+    form.setValue("tags", updatedTags);
   };
 
-  const handleFormSubmit = (values: JobFormValues) => {
-    // Include the tags from the state
-    const formData = { ...values, tags };
-    onSubmit(formData);
+  const onFormSubmit = (values: JobFormValues) => {
+    onSubmit(values);
   };
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="title">Job Title</Label>
-          <Input
-            id="title"
-            {...register("title")}
-            placeholder="e.g. Senior Frontend Developer"
-            className={errors.title ? "border-destructive" : ""}
-          />
-          {errors.title && (
-            <p className="text-destructive text-sm mt-1">
-              {errors.title.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="description">Job Description</Label>
-          <Controller
-            name="description"
-            control={control}
-            render={({ field }) => (
-              <RichTextEditor
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Describe the job responsibilities, requirements, and benefits..."
-                error={!!errors.description}
+    <Card className="border shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onFormSubmit)}
+            className="space-y-6"
+          >
+            <div className="space-y-6">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <BriefcaseIcon className="h-4 w-4" />
+                      Job Title
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="e.g. Senior Frontend Developer"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            )}
-          />
-          {errors.description && (
-            <p className="text-destructive text-sm mt-1">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
 
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            {...register("location")}
-            placeholder="e.g. New York, NY or Remote"
-            className={errors.location ? "border-destructive" : ""}
-          />
-          {errors.location && (
-            <p className="text-destructive text-sm mt-1">
-              {errors.location.message}
-            </p>
-          )}
-        </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Job Description</FormLabel>
+                    <FormControl>
+                      <RichTextEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Describe the job responsibilities, requirements, and benefits..."
+                        error={!!form.formState.errors.description}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div>
-          <Label htmlFor="employmentType">Employment Type</Label>
-          <Controller
-            name="employmentType"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger
-                  className={errors.employmentType ? "border-destructive" : ""}
-                >
-                  <SelectValue placeholder="Select employment type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={EmploymentType.FULL_TIME}>
-                    Full Time
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.PART_TIME}>
-                    Part Time
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.CONTRACT}>
-                    Contract
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.FREELANCE}>
-                    Freelance
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.employmentType && (
-            <p className="text-destructive text-sm mt-1">
-              {errors.employmentType.message}
-            </p>
-          )}
-        </div>
+              <FormField
+                control={form.control}
+                name="location"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <MapPinIcon className="h-4 w-4" />
+                      Location
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="e.g. New York, NY or Remote"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-        <div>
-          <Label htmlFor="experience">Experience (years)</Label>
-          <Input
-            id="experience"
-            type="number"
-            min="0"
-            {...register("experience", { valueAsNumber: true })}
-            placeholder="e.g. 3"
-            className={errors.experience ? "border-destructive" : ""}
-          />
-          {errors.experience && (
-            <p className="text-destructive text-sm mt-1">
-              {errors.experience.message}
-            </p>
-          )}
-        </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="employmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <BriefcaseIcon className="h-4 w-4" />
+                        Employment Type
+                      </FormLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select employment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value={EmploymentType.FULL_TIME}>
+                            Full Time
+                          </SelectItem>
+                          <SelectItem value={EmploymentType.PART_TIME}>
+                            Part Time
+                          </SelectItem>
+                          <SelectItem value={EmploymentType.CONTRACT}>
+                            Contract
+                          </SelectItem>
+                          <SelectItem value={EmploymentType.FREELANCE}>
+                            Freelance
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <div>
-          <Label htmlFor="tags">Tags</Label>
-          <div className="flex gap-2">
-            <Input
-              id="tags"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              placeholder="e.g. React, TypeScript"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleAddTag();
-                }
-              }}
-            />
-            <Button type="button" onClick={handleAddTag} variant="outline">
-              Add
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {tags.map((tag) => (
-              <div
-                key={tag}
-                className="bg-muted text-muted-foreground px-2 py-1 rounded-md flex items-center gap-1"
-              >
-                <span>{tag}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag(tag)}
-                  className="text-muted-foreground hover:text-destructive"
-                >
-                  ×
-                </button>
+                <FormField
+                  control={form.control}
+                  name="experience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <ClockIcon className="h-4 w-4" />
+                        Experience (years)
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="number"
+                          min="0"
+                          placeholder="e.g. 3"
+                          onChange={(e) =>
+                            field.onChange(Number(e.target.value))
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="flex items-center space-x-2">
-          <Controller
-            name="active"
-            control={control}
-            render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                id="active"
+              <FormField
+                control={form.control}
+                name="tags"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="flex items-center gap-2">
+                      <TagIcon className="h-4 w-4" />
+                      Skills & Technologies
+                    </FormLabel>
+                    <div className="flex gap-2">
+                      <Input
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        placeholder="e.g. React, TypeScript"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAddTag();
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleAddTag}
+                        variant="secondary"
+                        size="icon"
+                      >
+                        <TagIcon className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <FormDescription>
+                      Add relevant skills and technologies for this position
+                    </FormDescription>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="flex items-center gap-1 px-3 py-1"
+                        >
+                          <span>{tag}</span>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTag(tag)}
+                                  className="text-muted-foreground hover:text-destructive ml-1"
+                                >
+                                  ×
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Remove tag</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </Badge>
+                      ))}
+                    </div>
+                  </FormItem>
+                )}
               />
-            )}
-          />
-          <Label htmlFor="active">Active</Label>
-        </div>
-      </div>
 
-      <Button type="submit" disabled={isLoading} className="w-full">
-        {isLoading ? "Saving..." : "Save"}
-      </Button>
-    </form>
+              <FormField
+                control={form.control}
+                name="active"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">
+                        Active Listing
+                      </FormLabel>
+                      <FormDescription>
+                        Toggle to make this job visible to candidates
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full mt-6"
+              size="lg"
+            >
+              {isLoading ? "Saving..." : "Save Job Listing"}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
   );
 }

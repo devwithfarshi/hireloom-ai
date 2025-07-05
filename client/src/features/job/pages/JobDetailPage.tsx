@@ -44,7 +44,7 @@ export function JobDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container max-w-4xl py-8">
+      <div className="container  mx-auto max-w-4xl py-8">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -58,7 +58,7 @@ export function JobDetailPage() {
 
   if (error || !job) {
     return (
-      <div className="container max-w-4xl py-8">
+      <div className="container mx-auto max-w-4xl py-8">
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -77,7 +77,7 @@ export function JobDetailPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container mx-auto max-w-4xl py-8">
       <Button variant="outline" onClick={handleBack} className="mb-6">
         <ArrowLeftIcon className="mr-2 h-4 w-4" />
         Back

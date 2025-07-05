@@ -1,10 +1,3 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { JobForm } from "../components/JobForm";
@@ -29,18 +22,12 @@ export function CreateJobPage() {
   };
 
   return (
-    <div className="container max-w-4xl py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Create New Job</CardTitle>
-          <CardDescription>
-            Fill in the details below to create a new job posting.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <JobForm onSubmit={handleSubmit} isLoading={isLoading} />
-        </CardContent>
-      </Card>
+    <div className="container mx-auto max-w-4xl py-8">
+      <JobForm 
+        onSubmit={handleSubmit} 
+        isLoading={isLoading} 
+        title="Create New Job"
+      />
     </div>
   );
 }
