@@ -11,7 +11,7 @@ export class UserController {
   constructor(private userService: UserService) {}
   @Get('me')
   getMe(@GetUser() user: User) {
-    return user;
+    return this.userService.getMe(user);
   }
   @Put()
   async updateUser(@GetUser('id') userId: string, @Body() body: UpdateDto) {

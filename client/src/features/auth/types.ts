@@ -4,9 +4,11 @@ export interface User {
   firstName?: string;
   lastName?: string;
   isVerified: boolean;
-  role: 'RECRUITER' | 'CANDIDATE' | 'SUPER_ADMIN';
+  role: "RECRUITER" | "CANDIDATE" | "SUPER_ADMIN";
   createdAt: string;
   updatedAt: string;
+  companyID?: string;
+  candidateProfileID?: string;
 }
 
 export interface AuthState {
@@ -25,7 +27,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  role?: 'RECRUITER' | 'CANDIDATE';
+  role?: "RECRUITER" | "CANDIDATE";
 }
 
 export interface AuthResponse {

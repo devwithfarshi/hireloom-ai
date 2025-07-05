@@ -9,7 +9,7 @@ export const useAuth = () => {
   );
   const dispatch = useAppDispatch();
 
-  const { data, error, isLoading, isFetching } = useGetMeQuery(undefined, {
+  const { data, error, isLoading } = useGetMeQuery(undefined, {
     skip: !isAuthenticated,
   });
 

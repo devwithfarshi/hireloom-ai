@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -13,7 +14,6 @@ import { Switch } from "@/components/ui/switch";
 import { handleApiError } from "@/lib/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Resolver, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useCreateCandidateProfileMutation } from "../candidateProfileApi";
 import {
@@ -22,7 +22,6 @@ import {
 } from "../schemas/candidateProfileSchema";
 
 export function CandidateProfileForm() {
-  const navigate = useNavigate();
   const [createProfile, { isLoading }] = useCreateCandidateProfileMutation();
 
   const form = useForm<CandidateProfileFormValues>({
@@ -40,7 +39,6 @@ export function CandidateProfileForm() {
 
   const onSubmit = async (values: CandidateProfileFormValues) => {
     try {
-      // Convert skills string to array
       const formattedValues = {
         ...values,
         skills: values.skills.split(",").map((skill) => skill.trim()),
@@ -48,7 +46,7 @@ export function CandidateProfileForm() {
 
       await createProfile(formattedValues);
       toast.success("Profile created successfully!");
-      navigate("/");
+      window.location.reload();
     } catch (error: any) {
       handleApiError(error);
     }
@@ -112,6 +110,9 @@ export function CandidateProfileForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Skills</FormLabel>
+              <FormDescription>
+                List your relevant skills (comma `,` separated).
+              </FormDescription>
               <FormControl>
                 <Input
                   placeholder="Enter your skills (comma separated)"

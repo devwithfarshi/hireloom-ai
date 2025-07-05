@@ -52,7 +52,7 @@ export class CompanyService {
       },
     });
     if (companyExistForUser) {
-      throw new BadRequestException('Company already exists for user');
+      throw new BadRequestException('Company already exists for you.');
     }
     return await this.prisma.company.create({
       data: {

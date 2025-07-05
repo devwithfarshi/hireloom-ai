@@ -40,7 +40,7 @@ export function ProfileUpdateForm() {
 
   const onSubmit = async (values: ProfileUpdateFormValues) => {
     try {
-      const data = await updateProfile(values).unwrap();
+      await updateProfile(values).unwrap();
 
       toast.success("Profile updated successfully");
     } catch (error: any) {

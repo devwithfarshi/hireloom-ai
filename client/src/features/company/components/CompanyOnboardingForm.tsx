@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -6,35 +6,33 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Spinner } from '@/components/ui/spinner';
-import { handleApiError } from '@/lib/errorHandler';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { CompanyFormValues, companySchema } from '../schemas';
-import { useCreateCompanyMutation } from '../companyApi';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { handleApiError } from "@/lib/errorHandler";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { useCreateCompanyMutation } from "../companyApi";
+import { CompanyFormValues, companySchema } from "../schemas";
 
 export function CompanyOnboardingForm() {
-  const navigate = useNavigate();
   const [createCompany, { isLoading }] = useCreateCompanyMutation();
 
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
     defaultValues: {
-      name: '',
-      industry: '',
-      location: '',
+      name: "",
+      industry: "",
+      location: "",
     },
   });
 
   const onSubmit = async (values: CompanyFormValues) => {
     try {
       await createCompany(values).unwrap();
-      toast.success('Company created successfully!');
-      navigate('/');
+      toast.success("Company created successfully!");
+      window.location.reload();
     } catch (error: any) {
       handleApiError(error);
     }

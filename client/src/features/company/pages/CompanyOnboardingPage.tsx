@@ -1,7 +1,17 @@
-import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { CompanyOnboardingForm } from '../components/CompanyOnboardingForm';
+import { AuthLayout } from "@/features/auth/components/AuthLayout";
+import { useAuth } from "@/features/auth/hooks";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { CompanyOnboardingForm } from "../components/CompanyOnboardingForm";
 
 export function CompanyOnboardingPage() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user?.companyID || user?.candidateProfileID) {
+      navigate("/");
+    }
+  }, [user]);
   return (
     <AuthLayout>
       <div className="space-y-6">
