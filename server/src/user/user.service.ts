@@ -12,12 +12,15 @@ export class UserService {
       },
       select: {
         id: true,
+        name: true,
+        industry: true,
+        location: true,
       },
     });
     if (companyID) {
       return {
         ...user,
-        companyID: companyID.id,
+        company: companyID,
       };
     }
     const candidateProfileID = await this.prisma.candidateProfile.findUnique({
@@ -26,12 +29,17 @@ export class UserService {
       },
       select: {
         id: true,
+        resumeUrl: true,
+        skills: true,
+        openToRemote: true,
+        location: true,
+        experience: true,
       },
     });
     if (candidateProfileID) {
       return {
         ...user,
-        candidateProfileID: candidateProfileID.id,
+        candidateProfile: candidateProfileID,
       };
     }
     return user;

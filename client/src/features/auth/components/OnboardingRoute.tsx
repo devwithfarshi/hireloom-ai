@@ -12,12 +12,12 @@ export function OnboardingRoute() {
   }
 
   // If user is a recruiter and doesn't have a company profile, redirect to company onboarding
-  if (user?.role === "RECRUITER" && !user.companyID) {
+  if (user?.role === "RECRUITER" && !user.company) {
     return <Navigate to="/company/onboarding" replace />;
   }
 
   // If user is a candidate and doesn't have a profile, redirect to candidate onboarding
-  if (user?.role === "CANDIDATE" && !user.candidateProfileID) {
+  if (user?.role === "CANDIDATE" && !user.candidateProfile) {
     return <Navigate to="/candidate/onboarding" replace />;
   }
 

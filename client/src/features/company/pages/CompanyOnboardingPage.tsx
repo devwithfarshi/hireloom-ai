@@ -8,7 +8,7 @@ export function CompanyOnboardingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   useEffect(() => {
-    if (user?.companyID || user?.candidateProfileID) {
+    if (user?.company || user?.candidateProfile) {
       navigate("/");
     }
   }, [user]);

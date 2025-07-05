@@ -1,3 +1,6 @@
+import { Company } from "../company/companyApi";
+import { CandidateProfile } from "../profile/candidateProfileApi";
+
 export interface User {
   id: string;
   email: string;
@@ -7,8 +10,8 @@ export interface User {
   role: "RECRUITER" | "CANDIDATE" | "SUPER_ADMIN";
   createdAt: string;
   updatedAt: string;
-  companyID?: string;
-  candidateProfileID?: string;
+  company?: Company;
+  candidateProfile?: CandidateProfile;
 }
 
 export interface AuthState {
