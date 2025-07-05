@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { DialogClose } from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -9,26 +11,28 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { Switch } from "@/components/ui/switch";
+import { useGetMeQuery } from "@/features/auth/authApi";
 import { useAuth } from "@/features/auth/hooks";
 import { handleApiError } from "@/lib/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Dribbble, Github, Globe, Linkedin, Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Resolver, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { SocialLink, useUpdateCandidateProfileMutation } from "../candidateProfileApi";
+import { useUpdateCandidateProfileMutation } from "../candidateProfileApi";
 import {
   CandidateProfileFormValues,
-  SocialLinkFormValues,
   candidateProfileSchema,
-  socialLinkSchema,
 } from "../schemas/candidateProfileSchema";
-import { useEffect, useState } from "react";
-import { DialogClose } from "@/components/ui/dialog";
-import { useGetMeQuery } from "@/features/auth/authApi";
-import { Card, CardContent } from "@/components/ui/card";
-import { Trash2, Plus, Github, Linkedin, Globe, Dribbble } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CandidateProfileUpdateFormWithDialog() {
   const { user } = useAuth();
@@ -48,32 +52,42 @@ export function CandidateProfileUpdateFormWithDialog() {
       socialLinks: [],
     },
   });
-  
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "socialLinks",
   });
-  
+
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
-  
+
   const platformOptions = [
-    { value: "linkedin", label: "LinkedIn", icon: <Linkedin className="h-4 w-4" /> },
+    {
+      value: "linkedin",
+      label: "LinkedIn",
+      icon: <Linkedin className="h-4 w-4" />,
+    },
     { value: "github", label: "GitHub", icon: <Github className="h-4 w-4" /> },
-    { value: "behance", label: "Behance", icon: <Dribbble className="h-4 w-4" /> },
+    {
+      value: "behance",
+      label: "Behance",
+      icon: <Dribbble className="h-4 w-4" />,
+    },
     { value: "other", label: "Other", icon: <Globe className="h-4 w-4" /> },
   ];
-  
+
   const getPlatformIcon = (platform: string) => {
-    const option = platformOptions.find(opt => opt.value === platform.toLowerCase());
+    const option = platformOptions.find(
+      (opt) => opt.value === platform.toLowerCase()
+    );
     return option?.icon || <Globe className="h-4 w-4" />;
   };
 
   useEffect(() => {
     if (!user?.candidateProfile) return;
-    
+
     // Format skills array back to comma-separated string for the form
     const skillsString = user.candidateProfile.skills?.join(", ") || "";
-    
+
     form.reset({
       location: user.candidateProfile.location || "",
       openToRemote: user.candidateProfile.openToRemote || false,
@@ -100,14 +114,14 @@ export function CandidateProfileUpdateFormWithDialog() {
       };
 
       await updateProfile(formattedValues).unwrap();
-      
+
       // Refetch user data to update the state
       await refetch();
-      
+
       toast.success("Candidate profile updated successfully");
-      
+
       // Find and click the DialogClose button to close the dialog
-      const closeButton = document.querySelector('[data-dialog-close]');
+      const closeButton = document.querySelector("[data-dialog-close]");
       if (closeButton instanceof HTMLElement) {
         closeButton.click();
       }
@@ -115,10 +129,10 @@ export function CandidateProfileUpdateFormWithDialog() {
       handleApiError(error);
     }
   };
-  
+
   const handleAddSocialLink = () => {
     if (!selectedPlatform) return;
-    
+
     append({ platform: selectedPlatform, url: "" });
     setSelectedPlatform("");
   };
@@ -220,7 +234,7 @@ export function CandidateProfileUpdateFormWithDialog() {
                   Add links to your professional profiles
                 </FormDescription>
               </div>
-              
+
               {fields.length > 0 && (
                 <div className="space-y-2">
                   {fields.map((field, index) => (
@@ -261,7 +275,7 @@ export function CandidateProfileUpdateFormWithDialog() {
                   ))}
                 </div>
               )}
-              
+
               <div className="flex items-end gap-2">
                 <div className="flex-grow">
                   <Select

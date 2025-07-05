@@ -1,3 +1,4 @@
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useLogoutMutation } from "@/features/auth/authApi";
@@ -6,7 +7,6 @@ import { useAuth } from "@/features/auth/hooks";
 import { useAppDispatch } from "@/lib/hooks";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function Navbar() {
   const { user } = useAuth();
@@ -28,7 +28,11 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/logo/logo-icon.png" alt="HireWise AI Logo" className="h-8 w-8" />
+            <img
+              src="/logo/logo-icon.png"
+              alt="HireWise AI Logo"
+              className="h-8 w-8"
+            />
             <span className="text-xl font-bold">HireWise AI</span>
           </Link>
           <div className="hidden md:flex md:space-x-4">
@@ -47,6 +51,15 @@ export function Navbar() {
           </div>
         </div>
         <div className="flex items-center space-x-4">
+          <Button
+            onClick={handleLogout}
+            disabled={isLoading}
+            variant="destructive"
+            size="sm"
+          >
+            {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
+            {isLoading ? "Logging out..." : "Logout"}
+          </Button>
           {user && (
             <div className="hidden md:block">
               <span className="text-sm font-medium">
@@ -55,15 +68,16 @@ export function Navbar() {
               </span>
             </div>
           )}
-          <Button
-            onClick={handleLogout}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-          >
-            {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
-            {isLoading ? "Logging out..." : "Logout"}
-          </Button>
+          <Avatar>
+            <AvatarFallback>
+              <span className="text-sm font-medium">
+                {[user?.firstName, user?.lastName]
+                  .filter(Boolean)
+                  .join(" ")
+                  .charAt(0)}
+              </span>
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
     </nav>

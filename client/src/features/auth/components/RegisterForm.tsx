@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { toast } from 'sonner';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -12,48 +12,50 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { registerSchema, RegisterFormValues } from '../schemas';
-import { useRegisterMutation } from '../authApi';
-import { handleApiError } from '@/lib/errorHandler';
-import { Spinner } from '@/components/ui/spinner';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { registerSchema, RegisterFormValues } from "../schemas";
+import { useRegisterMutation } from "../authApi";
+import { handleApiError } from "@/lib/errorHandler";
+import { Spinner } from "@/components/ui/spinner";
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [register, { isLoading }] = useRegisterMutation();
-  
+
   // Get role from URL search params
-  const role = searchParams.get('role') as 'RECRUITER' | 'CANDIDATE' | null;
+  const role = searchParams.get("role") as "RECRUITER" | "CANDIDATE" | null;
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      email: '',
-      password: '',
-      confirmPassword: '',
+      email: "",
+      password: "",
+      confirmPassword: "",
       role: role || undefined,
     },
   });
-  
+
   // Update form when role changes in URL
   useEffect(() => {
     if (role) {
-      form.setValue('role', role);
+      form.setValue("role", role);
     }
   }, [role, form]);
 
   const onSubmit = async (values: RegisterFormValues) => {
     try {
-      const { confirmPassword, ...registerData } = values;
+      const { confirmPassword: _, ...registerData } = values;
       await register(registerData).unwrap();
-      toast.success('Registration successful! Please check your email to verify your account.');
-      
+      toast.success(
+        "Registration successful! Please check your email to verify your account."
+      );
+
       // Always redirect to login page after registration
       // User will be redirected to appropriate onboarding page after login if needed
-      navigate('/login');
+      navigate("/login");
     } catch (error: any) {
       handleApiError(error);
     }
@@ -64,7 +66,9 @@ export function RegisterForm() {
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Create an account</h1>
         <p className="text-gray-500 dark:text-gray-400">
-          {role ? `Creating a ${role.toLowerCase()} account` : 'Enter your email below to create your account'}
+          {role
+            ? `Creating a ${role.toLowerCase()} account`
+            : "Enter your email below to create your account"}
         </p>
       </div>
       <Form {...form}>
@@ -97,7 +101,7 @@ export function RegisterForm() {
                   <div className="relative">
                     <Input
                       placeholder="••••••••"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       {...field}
                     />
@@ -108,7 +112,7 @@ export function RegisterForm() {
                       className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? 'Hide' : 'Show'}
+                      {showPassword ? "Hide" : "Show"}
                     </Button>
                   </div>
                 </FormControl>
@@ -125,7 +129,7 @@ export function RegisterForm() {
                 <FormControl>
                   <Input
                     placeholder="••••••••"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     {...field}
                   />
@@ -136,12 +140,12 @@ export function RegisterForm() {
           />
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Spinner size="sm" className="mr-2" />}
-            {isLoading ? 'Creating account...' : 'Create account'}
+            {isLoading ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </Form>
       <div className="text-center text-sm">
-        Already have an account?{' '}
+        Already have an account?{" "}
         <Link to="/login" className="font-medium text-primary">
           Sign in
         </Link>

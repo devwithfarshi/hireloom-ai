@@ -10,7 +10,7 @@ import { useVerifyEmailMutation } from "../authApi";
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
-  const [verifyEmail, { isLoading }] = useVerifyEmailMutation();
+  const [verifyEmail] = useVerifyEmailMutation();
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState("");
   const [status, setStatus] = useState("loading");
