@@ -22,7 +22,8 @@ import { Role } from "./features/auth/types";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { ProfilePage, CandidateOnboardingPage } from "./features/profile/pages";
 import { CompanyOnboardingPage } from "./features/company/pages";
-import { CreateJobPage, EditJobPage, JobDashboardPage, JobDetailPage } from "./features/job/pages";
+import { CreateJobPage, EditJobPage, JobDashboardPage, JobDetailPage, JobBrowsePage } from "./features/job/pages";
+import { MyApplicationsPage } from "./features/application/pages";
 import { AppLayout } from "./components/layout";
 
 const App = () => {
@@ -71,6 +72,14 @@ const App = () => {
               
               {/* Job routes - accessible by all users */}
               <Route
+                path="/jobs"
+                element={
+                  <AppLayout>
+                    <JobBrowsePage />
+                  </AppLayout>
+                }
+              />
+              <Route
                 path="/jobs/:id"
                 element={
                   <AppLayout>
@@ -78,6 +87,18 @@ const App = () => {
                   </AppLayout>
                 }
               />
+              
+              {/* Application routes - only for candidates */}
+              <Route element={<RoleProtectedRoute allowedRoles={[Role.CANDIDATE]} />}>
+                <Route
+                  path="/my-applications"
+                  element={
+                    <AppLayout>
+                      <MyApplicationsPage />
+                    </AppLayout>
+                  }
+                />
+              </Route>
               
               {/* Job routes - only for recruiters */}
               <Route element={<RoleProtectedRoute allowedRoles={[Role.RECRUITER]} />}>

@@ -6,6 +6,7 @@ import { companyApi } from "../features/company/companyApi";
 import { candidateProfileApi } from "../features/profile/candidateProfileApi";
 import { userApi } from "../features/profile/userApi";
 import { jobApi } from "../features/job/jobApi";
+import { applicationApi } from "../services/applicationApi";
 
 const resetApiOnLogout =
   (api: { dispatch: (action: any) => void }) =>
@@ -16,6 +17,8 @@ const resetApiOnLogout =
       api.dispatch(userApi.util.resetApiState());
       api.dispatch(companyApi.util.resetApiState());
       api.dispatch(candidateProfileApi.util.resetApiState());
+      api.dispatch(jobApi.util.resetApiState());
+      api.dispatch(applicationApi.util.resetApiState());
     }
     return next(action);
   };
@@ -28,6 +31,7 @@ export const store = configureStore({
     [companyApi.reducerPath]: companyApi.reducer,
     [candidateProfileApi.reducerPath]: candidateProfileApi.reducer,
     [jobApi.reducerPath]: jobApi.reducer,
+    [applicationApi.reducerPath]: applicationApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -36,7 +40,8 @@ export const store = configureStore({
         userApi.middleware,
         companyApi.middleware,
         candidateProfileApi.middleware,
-        jobApi.middleware
+        jobApi.middleware,
+        applicationApi.middleware
       )
       .prepend(resetApiOnLogout),
 });

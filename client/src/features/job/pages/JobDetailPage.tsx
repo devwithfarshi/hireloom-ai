@@ -8,15 +8,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/features/auth/hooks";
+import { Role } from "@/features/auth/types";
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
   BuildingIcon,
   ClockIcon,
   MapPinIcon,
+  SendIcon,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { EmploymentType, useGetJobByIdQuery } from "../jobApi";
+import { useCreateApplicationMutation } from "@/services/applicationApi";
 
 const formatEmploymentType = (type: EmploymentType): string => {
   switch (type) {
@@ -36,10 +41,24 @@ const formatEmploymentType = (type: EmploymentType): string => {
 export function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const { data: job, isLoading, error } = useGetJobByIdQuery(id!);
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const [createApplication, { isLoading: isApplying }] = useCreateApplicationMutation();
+
+  const handleApply = async () => {
+    if (!id) return;
+    
+    try {
+      await createApplication({ jobId: id }).unwrap();
+      toast.success("Your application has been submitted successfully!");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Failed to submit application. Please try again.");
+    }
   };
 
   if (isLoading) {
@@ -144,6 +163,16 @@ export function JobDetailPage() {
           <div className="text-sm text-muted-foreground">
             Posted on {new Date(job.createdAt).toLocaleDateString()}
           </div>
+          {isAuthenticated && user?.role === Role.CANDIDATE && (
+            <Button 
+              onClick={handleApply} 
+              className="ml-auto" 
+              disabled={isApplying}
+            >
+              <SendIcon className="mr-2 h-4 w-4" />
+              {isApplying ? "Submitting..." : "Apply Now"}
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </div>
