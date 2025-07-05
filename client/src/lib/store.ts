@@ -5,6 +5,7 @@ import authReducer, { logout } from "../features/auth/authSlice";
 import { companyApi } from "../features/company/companyApi";
 import { candidateProfileApi } from "../features/profile/candidateProfileApi";
 import { userApi } from "../features/profile/userApi";
+import { jobApi } from "../features/job/jobApi";
 
 const resetApiOnLogout =
   (api: { dispatch: (action: any) => void }) =>
@@ -26,6 +27,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
     [candidateProfileApi.reducerPath]: candidateProfileApi.reducer,
+    [jobApi.reducerPath]: jobApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -33,7 +35,8 @@ export const store = configureStore({
         authApi.middleware,
         userApi.middleware,
         companyApi.middleware,
-        candidateProfileApi.middleware
+        candidateProfileApi.middleware,
+        jobApi.middleware
       )
       .prepend(resetApiOnLogout),
 });

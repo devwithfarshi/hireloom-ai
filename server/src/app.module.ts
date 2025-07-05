@@ -6,6 +6,7 @@ import { EmailModule } from './email/email.module';
 import { UserModule } from './user/user.module';
 import { CompanyModule } from './company/company.module';
 import { CandidateProfileModule } from './candidate-profile/candidate-profile.module';
+import { JobModule } from './job/job.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { CandidateProfileModule } from './candidate-profile/candidate-profile.mo
     UserModule,
     CompanyModule,
     CandidateProfileModule,
+    JobModule,
   ],
   controllers: [],
   providers: [],

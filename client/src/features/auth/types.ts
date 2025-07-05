@@ -1,13 +1,19 @@
 import { Company } from "../company/companyApi";
 import { CandidateProfile } from "../profile/candidateProfileApi";
 
+export enum Role {
+  RECRUITER = "RECRUITER",
+  CANDIDATE = "CANDIDATE",
+  SUPER_ADMIN = "SUPER_ADMIN",
+}
+
 export interface User {
   id: string;
   email: string;
   firstName?: string;
   lastName?: string;
   isVerified: boolean;
-  role: "RECRUITER" | "CANDIDATE" | "SUPER_ADMIN";
+  role: Role;
   createdAt: string;
   updatedAt: string;
   company?: Company;
@@ -30,7 +36,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  role?: "RECRUITER" | "CANDIDATE";
+  role?: Role;
 }
 
 export interface AuthResponse {

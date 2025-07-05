@@ -15,11 +15,14 @@ import {
 import {
   ProtectedRoute,
   OnboardingRoute,
+  RoleProtectedRoute,
   AuthProvider,
 } from "./features/auth/components";
+import { Role } from "./features/auth/types";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { ProfilePage, CandidateOnboardingPage } from "./features/profile/pages";
 import { CompanyOnboardingPage } from "./features/company/pages";
+import { CreateJobPage, EditJobPage, JobDashboardPage, JobDetailPage } from "./features/job/pages";
 import { AppLayout } from "./components/layout";
 
 const App = () => {
@@ -65,6 +68,44 @@ const App = () => {
                   </AppLayout>
                 }
               />
+              
+              {/* Job routes - accessible by all users */}
+              <Route
+                path="/jobs/:id"
+                element={
+                  <AppLayout>
+                    <JobDetailPage />
+                  </AppLayout>
+                }
+              />
+              
+              {/* Job routes - only for recruiters */}
+              <Route element={<RoleProtectedRoute allowedRoles={[Role.RECRUITER]} />}>
+                <Route
+                  path="/dashboard/jobs"
+                  element={
+                    <AppLayout>
+                      <JobDashboardPage />
+                    </AppLayout>
+                  }
+                />
+                <Route
+                  path="/dashboard/jobs/create"
+                  element={
+                    <AppLayout>
+                      <CreateJobPage />
+                    </AppLayout>
+                  }
+                />
+                <Route
+                  path="/dashboard/jobs/edit/:id"
+                  element={
+                    <AppLayout>
+                      <EditJobPage />
+                    </AppLayout>
+                  }
+                />
+              </Route>
             </Route>
           </Route>
 

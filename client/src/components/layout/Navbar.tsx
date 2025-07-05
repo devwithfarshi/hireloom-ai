@@ -4,6 +4,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { useLogoutMutation } from "@/features/auth/authApi";
 import { logout } from "@/features/auth/authSlice";
 import { useAuth } from "@/features/auth/hooks";
+import { Role } from "@/features/auth/types";
 import { useAppDispatch } from "@/lib/hooks";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -48,6 +49,14 @@ export function Navbar() {
             >
               Profile
             </Link>
+            {user?.role === Role.RECRUITER && (
+              <Link
+                to="/dashboard/jobs"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Jobs
+              </Link>
+            )}
           </div>
         </div>
         <div className="flex items-center space-x-4">

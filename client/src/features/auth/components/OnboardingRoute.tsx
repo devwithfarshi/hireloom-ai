@@ -1,5 +1,6 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks";
+import { Role } from "../types";
 export function OnboardingRoute() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -12,12 +13,12 @@ export function OnboardingRoute() {
   }
 
   // If user is a recruiter and doesn't have a company profile, redirect to company onboarding
-  if (user?.role === "RECRUITER" && !user.company) {
+  if (user?.role === Role.RECRUITER && !user.company) {
     return <Navigate to="/company/onboarding" replace />;
   }
 
   // If user is a candidate and doesn't have a profile, redirect to candidate onboarding
-  if (user?.role === "CANDIDATE" && !user.candidateProfile) {
+  if (user?.role === Role.CANDIDATE && !user.candidateProfile) {
     return <Navigate to="/candidate/onboarding" replace />;
   }
 

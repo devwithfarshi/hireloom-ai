@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { Role } from "../types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,10 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { registerSchema, RegisterFormValues } from "../schemas";
-import { useRegisterMutation } from "../authApi";
-import { handleApiError } from "@/lib/errorHandler";
 import { Spinner } from "@/components/ui/spinner";
+import { handleApiError } from "@/lib/errorHandler";
+import { useRegisterMutation } from "../authApi";
+import { RegisterFormValues, registerSchema } from "../schemas";
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -26,7 +27,10 @@ export function RegisterForm() {
   const [register, { isLoading }] = useRegisterMutation();
 
   // Get role from URL search params
-  const role = searchParams.get("role") as "RECRUITER" | "CANDIDATE" | null;
+  const role = searchParams.get("role") as
+    | Role.RECRUITER
+    | Role.CANDIDATE
+    | null;
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -48,7 +52,10 @@ export function RegisterForm() {
   const onSubmit = async (values: RegisterFormValues) => {
     try {
       const { confirmPassword: _, ...registerData } = values;
-      await register(registerData).unwrap();
+      await register({
+        ...registerData,
+        role: registerData.role,
+      }).unwrap();
       toast.success(
         "Registration successful! Please check your email to verify your account."
       );
