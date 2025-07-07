@@ -3,3 +3,4 @@ export * from './EditJobPage';
 export * from './JobDashboardPage';
 export * from './JobDetailPage';
 export * from './JobBrowsePage';
+export * from './JobApplicantsPage';

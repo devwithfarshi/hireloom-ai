@@ -22,7 +22,7 @@ import { Role } from "./features/auth/types";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { ProfilePage, CandidateOnboardingPage } from "./features/profile/pages";
 import { CompanyOnboardingPage } from "./features/company/pages";
-import { CreateJobPage, EditJobPage, JobDashboardPage, JobDetailPage, JobBrowsePage } from "./features/job/pages";
+import { CreateJobPage, EditJobPage, JobDashboardPage, JobDetailPage, JobBrowsePage, JobApplicantsPage } from "./features/job/pages";
 import { MyApplicationsPage } from "./features/application/pages";
 import { AppLayout } from "./components/layout";
 
@@ -123,6 +123,14 @@ const App = () => {
                   element={
                     <AppLayout>
                       <EditJobPage />
+                    </AppLayout>
+                  }
+                />
+                <Route
+                  path="/jobs/:id/applicants"
+                  element={
+                    <AppLayout>
+                      <JobApplicantsPage />
                     </AppLayout>
                   }
                 />

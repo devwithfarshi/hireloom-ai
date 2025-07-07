@@ -25,12 +25,19 @@ import {
 } from "@/components/ui/select";
 import { SearchIcon } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { JobList } from "../components/JobList";
-import { EmploymentType, useGetJobsQuery } from "../jobApi";
+import {
+  EmploymentType,
+  Job,
+  useDeleteJobMutation,
+  useGetJobsQuery,
+} from "../jobApi";
 import { useFilterDebounce } from "../hooks/useFilterDebounce";
 
 export function JobBrowsePage() {
-  // Use the custom hook for all filter inputs with debounce
+  const navigate = useNavigate();
   const {
     inputValues,
     debouncedValues,
@@ -38,9 +45,9 @@ export function JobBrowsePage() {
     setLocation,
     setEmploymentType,
     setIsRemote,
-    resetFilters
+    resetFilters,
   } = useFilterDebounce();
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const limit = 9;
 
@@ -48,9 +55,11 @@ export function JobBrowsePage() {
     data: jobsData,
     isLoading,
     isFetching,
+    refetch,
   } = useGetJobsQuery({
     search: debouncedValues.search || undefined,
-    employmentType: (debouncedValues.employmentType as EmploymentType) || undefined,
+    employmentType:
+      (debouncedValues.employmentType as EmploymentType) || undefined,
     location: debouncedValues.location || undefined,
     active: true, // Only show active jobs
     isRemote: debouncedValues.isRemote || undefined,
@@ -58,9 +67,28 @@ export function JobBrowsePage() {
     limit,
   });
 
+  const [deleteJob] = useDeleteJobMutation();
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleEditJob = (job: Job) => {
+    navigate(`/dashboard/jobs/edit/${job.id}`);
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      try {
+        await deleteJob(jobId).unwrap();
+        toast.success("Job deleted successfully");
+        refetch();
+      } catch (error) {
+        console.error("Failed to delete job:", error);
+        toast.error("Failed to delete job. Please try again.");
+      }
+    }
   };
 
   const totalPages = jobsData?.metadata.total
@@ -243,9 +271,12 @@ export function JobBrowsePage() {
               </Select>
             </div>
           </div>
-          
+
           <div className="mt-4 flex items-center">
-            <label htmlFor="isRemote" className="flex items-center cursor-pointer">
+            <label
+              htmlFor="isRemote"
+              className="flex items-center cursor-pointer"
+            >
               <input
                 id="isRemote"
                 type="checkbox"
@@ -268,7 +299,11 @@ export function JobBrowsePage() {
         </div>
       ) : (
         <>
-          <JobList jobs={jobsData?.data || []} />
+          <JobList
+            jobs={jobsData?.data || []}
+            onEdit={handleEditJob}
+            onDelete={handleDeleteJob}
+          />
 
           {jobsData && jobsData.data.length === 0 && (
             <div className="text-center py-8">

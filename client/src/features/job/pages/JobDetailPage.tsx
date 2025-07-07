@@ -18,6 +18,7 @@ import {
   Globe2,
   MapPinIcon,
   SendIcon,
+  UsersIcon,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -189,16 +190,26 @@ export function JobDetailPage() {
           <div className="text-sm text-muted-foreground">
             Posted on {new Date(job.createdAt).toLocaleDateString()}
           </div>
-          {isAuthenticated && user?.role === Role.CANDIDATE && (
-            <Button
-              onClick={handleApply}
-              className="ml-auto"
-              disabled={isApplying}
-            >
-              <SendIcon className="mr-2 h-4 w-4" />
-              {isApplying ? "Submitting..." : "Apply Now"}
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {isAuthenticated && user?.role === Role.RECRUITER && (
+              <Button
+                onClick={() => navigate(`/jobs/${id}/applicants`)}
+                variant="outline"
+              >
+                <UsersIcon className="mr-2 h-4 w-4" />
+                View Applicants
+              </Button>
+            )}
+            {isAuthenticated && user?.role === Role.CANDIDATE && (
+              <Button
+                onClick={handleApply}
+                disabled={isApplying}
+              >
+                <SendIcon className="mr-2 h-4 w-4" />
+                {isApplying ? "Submitting..." : "Apply Now"}
+              </Button>
+            )}
+          </div>
         </CardFooter>
       </Card>
     </div>

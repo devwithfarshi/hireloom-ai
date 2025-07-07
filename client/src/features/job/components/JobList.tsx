@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { EmploymentType, Job } from "../jobApi";
+import { useAuth } from "@/features/auth/hooks";
+import { Role } from "@/features/auth/types";
+import { Eye, Users, Edit, Trash2 } from "lucide-react";
 
 interface JobListProps {
   jobs: Job[];
@@ -40,6 +43,8 @@ export function JobList({
   isRecruiter = false,
 }: JobListProps) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const userIsRecruiter = user?.role === Role.RECRUITER;
 
   if (jobs.length === 0) {
     return (
@@ -104,25 +109,46 @@ export function JobList({
               />
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t pt-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/jobs/${job.id}`)}
-            >
-              View Details
-            </Button>
-            {isRecruiter && (
-              <div className="flex gap-2">
+          <CardFooter className="flex flex-col gap-2 border-t pt-4">
+            <div className="flex w-full gap-2">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => navigate(`/jobs/${job.id}`)}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </Button>
+              {(isRecruiter || userIsRecruiter) && (
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => navigate(`/jobs/${job.id}/applicants`)}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  View Applicants
+                </Button>
+              )}
+            </div>
+            {(isRecruiter || userIsRecruiter) && (onEdit || onDelete) && (
+              <div className="flex w-full gap-2">
                 {onEdit && (
-                  <Button variant="secondary" onClick={() => onEdit(job)}>
+                  <Button 
+                    variant="secondary" 
+                    className="flex-1"
+                    onClick={() => onEdit(job)}
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </Button>
                 )}
                 {onDelete && (
                   <Button
                     variant="destructive"
+                    className="flex-1"
                     onClick={() => onDelete(job.id)}
                   >
+                    <Trash2 className="mr-2 h-4 w-4" />
                     Delete
                   </Button>
                 )}
