@@ -76,6 +76,7 @@ model Job {
   employmentType EmploymentType @default(FULL_TIME)
   experience     Int
   active         Boolean      @default(true)
+  isRemote       Boolean      @default(false)
   tags           String[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt

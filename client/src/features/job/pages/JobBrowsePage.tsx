@@ -27,23 +27,33 @@ import { SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { JobList } from "../components/JobList";
 import { EmploymentType, useGetJobsQuery } from "../jobApi";
+import { useFilterDebounce } from "../hooks/useFilterDebounce";
 
 export function JobBrowsePage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [employmentTypeFilter, setEmploymentTypeFilter] = useState<string>("");
-  const [locationFilter, setLocationFilter] = useState<string>("");
+  // Use the custom hook for all filter inputs with debounce
+  const {
+    inputValues,
+    debouncedValues,
+    setSearch,
+    setLocation,
+    setEmploymentType,
+    setIsRemote,
+    resetFilters
+  } = useFilterDebounce();
+  
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 9; // Number of jobs per page
+  const limit = 9;
 
   const {
     data: jobsData,
     isLoading,
     isFetching,
   } = useGetJobsQuery({
-    search: searchTerm || undefined,
-    employmentType: (employmentTypeFilter as EmploymentType) || undefined,
-    location: locationFilter || undefined,
+    search: debouncedValues.search || undefined,
+    employmentType: (debouncedValues.employmentType as EmploymentType) || undefined,
+    location: debouncedValues.location || undefined,
     active: true, // Only show active jobs
+    isRemote: debouncedValues.isRemote || undefined,
     page: currentPage,
     limit,
   });
@@ -171,9 +181,9 @@ export function JobBrowsePage() {
                   id="search"
                   placeholder="Search by job title"
                   className="pl-9"
-                  value={searchTerm}
+                  value={inputValues.search}
                   onChange={(e) => {
-                    setSearchTerm(e.target.value);
+                    setSearch(e.target.value);
                     setCurrentPage(1); // Reset to first page on search change
                   }}
                 />
@@ -190,9 +200,9 @@ export function JobBrowsePage() {
               <Input
                 id="location"
                 placeholder="Enter location"
-                value={locationFilter}
+                value={inputValues.location}
                 onChange={(e) => {
-                  setLocationFilter(e.target.value);
+                  setLocation(e.target.value);
                   setCurrentPage(1); // Reset to first page on location change
                 }}
               />
@@ -206,9 +216,9 @@ export function JobBrowsePage() {
                 Employment Type
               </label>
               <Select
-                value={employmentTypeFilter}
+                value={inputValues.employmentType || "all"}
                 onValueChange={(value) => {
-                  setEmploymentTypeFilter(value === "all" ? "" : value);
+                  setEmploymentType(value);
                   setCurrentPage(1); // Reset to first page on type change
                 }}
               >
@@ -233,6 +243,22 @@ export function JobBrowsePage() {
               </Select>
             </div>
           </div>
+          
+          <div className="mt-4 flex items-center">
+            <label htmlFor="isRemote" className="flex items-center cursor-pointer">
+              <input
+                id="isRemote"
+                type="checkbox"
+                className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                checked={inputValues.isRemote}
+                onChange={(e) => {
+                  setIsRemote(e.target.checked);
+                  setCurrentPage(1); // Reset to first page on remote change
+                }}
+              />
+              <span className="text-sm font-medium">Remote positions only</span>
+            </label>
+          </div>
         </CardContent>
       </Card>
 
@@ -251,9 +277,7 @@ export function JobBrowsePage() {
               </p>
               <Button
                 onClick={() => {
-                  setSearchTerm("");
-                  setLocationFilter("");
-                  setEmploymentTypeFilter("");
+                  resetFilters();
                   setCurrentPage(1);
                 }}
                 variant="outline"

@@ -28,13 +28,13 @@ export function Navbar() {
     <nav className="border-b bg-white shadow-sm dark:bg-gray-800">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center">
             <img
               src="/logo/logo-icon.png"
-              alt="HireWise AI Logo"
-              className="h-8 w-8"
+              alt="HireLoom AI Logo"
+              className="w-10 aspect-square bg-blend-color-burn"
             />
-            <span className="text-xl font-bold">HireWise AI</span>
+            <p className="text-xl font-bold">HireLoom AI</p>
           </Link>
           <div className="hidden md:flex md:space-x-4">
             <Link

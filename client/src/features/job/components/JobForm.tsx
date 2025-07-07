@@ -56,6 +56,7 @@ export function JobForm({
       experience: initialValues?.experience || 0,
       tags: initialValues?.tags || [],
       active: initialValues?.active !== undefined ? initialValues.active : true,
+      isRemote: initialValues?.isRemote !== undefined ? initialValues.isRemote : false,
     },
   });
 
@@ -167,7 +168,7 @@ export function JobForm({
                         onValueChange={field.onChange}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select employment type" />
                           </SelectTrigger>
                         </FormControl>
@@ -281,28 +282,53 @@ export function JobForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="active"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-0.5">
-                      <FormLabel className="text-base">
-                        Active Listing
-                      </FormLabel>
-                      <FormDescription>
-                        Toggle to make this job visible to candidates
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="active"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Active Listing
+                        </FormLabel>
+                        <FormDescription>
+                          Toggle to make this job visible to candidates
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="isRemote"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Remote Position
+                        </FormLabel>
+                        <FormDescription>
+                          Toggle if this job can be done remotely
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
             </div>
 
             <Button

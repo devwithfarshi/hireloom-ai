@@ -9,6 +9,7 @@ export const jobFormSchema = z.object({
   experience: z.coerce.number().min(0, { message: 'Experience must be a positive number' }),
   tags: z.array(z.string()).default([]),
   active: z.boolean().default(true),
+  isRemote: z.boolean().default(false),
 });
 
 export type JobFormValues = z.infer<typeof jobFormSchema>;

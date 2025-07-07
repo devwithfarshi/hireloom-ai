@@ -9,7 +9,7 @@ export class JobService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: GetJobsDto): Promise<PaginatedResult<Job>> {
-    const { limit, page, search, location, employmentType, active } = query;
+    const { limit, page, search, location, employmentType, active, isRemote } = query;
 
     const whereConditions = {
       ...(search && {
@@ -18,6 +18,7 @@ export class JobService {
       ...(location && { location }),
       ...(employmentType && { employmentType }),
       ...(active !== undefined && { active }),
+      ...(isRemote !== undefined && { isRemote }),
     };
 
     return paginatePrisma(
@@ -34,7 +35,7 @@ export class JobService {
     user: User,
     query: GetJobsDto,
   ): Promise<PaginatedResult<Job>> {
-    const { limit, page, search, location, employmentType, active } = query;
+    const { limit, page, search, location, employmentType, active, isRemote } = query;
     const company = await this.prisma.company.findUnique({
       where: {
         userId: user.id,
@@ -54,6 +55,7 @@ export class JobService {
       ...(location && { location }),
       ...(employmentType && { employmentType }),
       ...(active !== undefined && { active }),
+      ...(isRemote !== undefined && { isRemote }),
     };
 
     return paginatePrisma(
@@ -97,6 +99,7 @@ export class JobService {
             name: true,
             industry: true,
             location: true,
+            domain: true,
           },
         },
       },

@@ -73,22 +73,27 @@ export function JobList({
           </CardHeader>
           <CardContent className="flex-grow">
             <div className="space-y-2">
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">
-                  {formatEmploymentType(job.employmentType)}
+            <div className="flex flex-wrap gap-2">
+              <Badge variant="secondary">
+                {formatEmploymentType(job.employmentType)}
+              </Badge>
+              <Badge variant="secondary">
+                {job.experience} {job.experience === 1 ? "year" : "years"}
+              </Badge>
+              {job.isRemote && (
+                <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-200">
+                  Remote
                 </Badge>
-                <Badge variant="secondary">
-                  {job.experience} {job.experience === 1 ? "year" : "years"}
+              )}
+              {job.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="outline">
+                  {tag}
                 </Badge>
-                {job.tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
-                {job.tags.length > 3 && (
-                  <Badge variant="outline">+{job.tags.length - 3}</Badge>
-                )}
-              </div>
+              ))}
+              {job.tags.length > 3 && (
+                <Badge variant="outline">+{job.tags.length - 3}</Badge>
+              )}
+            </div>
               <div
                 className="text-sm text-muted-foreground line-clamp-3 mt-2"
                 dangerouslySetInnerHTML={{

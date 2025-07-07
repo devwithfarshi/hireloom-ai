@@ -15,6 +15,7 @@ import {
   BriefcaseIcon,
   BuildingIcon,
   ClockIcon,
+  Globe2,
   MapPinIcon,
   SendIcon,
 } from "lucide-react";
@@ -48,16 +49,20 @@ export function JobDetailPage() {
     navigate(-1);
   };
 
-  const [createApplication, { isLoading: isApplying }] = useCreateApplicationMutation();
+  const [createApplication, { isLoading: isApplying }] =
+    useCreateApplicationMutation();
 
   const handleApply = async () => {
     if (!id) return;
-    
+
     try {
       await createApplication({ jobId: id }).unwrap();
       toast.success("Your application has been submitted successfully!");
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to submit application. Please try again.");
+      toast.error(
+        error?.data?.message ||
+          "Failed to submit application. Please try again."
+      );
     }
   };
 
@@ -107,9 +112,25 @@ export function JobDetailPage() {
           <div className="flex justify-between items-start">
             <div>
               <CardTitle className="text-2xl">{job.title}</CardTitle>
-              <CardDescription className="mt-2 flex items-center">
-                <BuildingIcon className="h-4 w-4 mr-1" />
-                {job.company?.name || "Company"}
+              <CardDescription className="mt-2">
+                <div className="flex items-center">
+                  <BuildingIcon className="h-4 w-4 mr-1" />
+                  <span>{job.company?.name || "Company"}</span>
+                </div>
+                {job.company?.domain && (
+                  <div className="flex items-center">
+                    <Globe2 className="h-4 w-4 mr-1" />{" "}
+                    <a
+                      href={
+                        job.company?.domain
+                          ? new URL(job.company.domain).href
+                          : "#"
+                      }
+                    >
+                      {job.company?.domain}
+                    </a>
+                  </div>
+                )}
               </CardDescription>
             </div>
             {!job.active && (
@@ -139,6 +160,11 @@ export function JobDetailPage() {
                 experience
               </span>
             </div>
+            {job.isRemote && (
+              <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-200">
+                Remote Position
+              </Badge>
+            )}
           </div>
 
           {job.tags.length > 0 && (
@@ -164,9 +190,9 @@ export function JobDetailPage() {
             Posted on {new Date(job.createdAt).toLocaleDateString()}
           </div>
           {isAuthenticated && user?.role === Role.CANDIDATE && (
-            <Button 
-              onClick={handleApply} 
-              className="ml-auto" 
+            <Button
+              onClick={handleApply}
+              className="ml-auto"
               disabled={isApplying}
             >
               <SendIcon className="mr-2 h-4 w-4" />

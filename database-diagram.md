@@ -27,6 +27,8 @@ DateTime updatedAt
         Text description
         String location "Remote/Onsite/Hybrid"
         Enum employmentType "Full-time/Part-time"
+        Boolean active
+        Boolean isRemote
         Int experience "Years required"
         String[] tags "Tech stack, keywords"
         UUID companyId FK

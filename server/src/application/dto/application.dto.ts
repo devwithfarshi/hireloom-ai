@@ -1,4 +1,13 @@
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Min } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApplicationStatus } from '@prisma/client';
 
 export class CreateApplicationDto {
@@ -30,10 +39,12 @@ export class GetApplicationsDto {
   @IsOptional()
   @IsInt({ message: 'Page must be an integer' })
   @Min(1, { message: 'Page must be at least 1' })
+  @Type(() => Number)
   page?: number;
 
   @IsOptional()
   @IsInt({ message: 'Limit must be an integer' })
-  @Min(1, { message: 'Limit must be at least 1' })
+  @Min(9, { message: 'Limit must be at least 1' })
+  @Type(() => Number)
   limit?: number;
 }

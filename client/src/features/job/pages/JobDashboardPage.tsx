@@ -31,6 +31,7 @@ export function JobDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState<string>("");
   const [activeFilter, setActiveFilter] = useState<string>("");
+  const [isRemoteFilter, setIsRemoteFilter] = useState<boolean | undefined>(undefined);
 
   const {
     data: jobsData,
@@ -40,6 +41,7 @@ export function JobDashboardPage() {
     search: searchTerm || undefined,
     employmentType: (employmentTypeFilter as EmploymentType) || undefined,
     active: activeFilter === "" ? undefined : activeFilter === "active",
+    isRemote: isRemoteFilter,
   });
 
   const [deleteJob] = useDeleteJobMutation();
@@ -165,6 +167,27 @@ export function JobDashboardPage() {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+          
+          <div className="mt-4 flex items-center">
+            <label htmlFor="isRemote" className="flex items-center cursor-pointer">
+              <input
+                id="isRemote"
+                type="checkbox"
+                className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                checked={isRemoteFilter === true}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setIsRemoteFilter(true);
+                  } else if (isRemoteFilter === true) {
+                    setIsRemoteFilter(undefined);
+                  } else {
+                    setIsRemoteFilter(true);
+                  }
+                }}
+              />
+              <span className="text-sm font-medium">Remote positions only</span>
+            </label>
           </div>
         </CardContent>
       </Card>

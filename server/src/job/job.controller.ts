@@ -18,7 +18,6 @@ import { CreateJobDto, GetJobsDto, UpdateJobDto } from './dto/job.dto';
 import { JobService } from './job.service';
 
 @UseGuards(JwtGuard, RolesGuard)
-@Roles(Role.RECRUITER)
 @Controller('jobs')
 export class JobController {
   constructor(private jobService: JobService) {}
@@ -28,6 +27,7 @@ export class JobController {
     return this.jobService.findAll(query);
   }
 
+  @Roles(Role.RECRUITER)
   @Get('company')
   getCompanyJobs(@GetUser() user: User, @Query() query: GetJobsDto) {
     return this.jobService.findAllByCompany(user, query);
@@ -38,16 +38,19 @@ export class JobController {
     return this.jobService.findOne(id);
   }
 
+  @Roles(Role.RECRUITER)
   @Post()
   createJob(@GetUser() user: User, @Body() createJobDto: CreateJobDto) {
     return this.jobService.create(user, createJobDto);
   }
 
+  @Roles(Role.RECRUITER)
   @Patch(':id')
   updateJob(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
     return this.jobService.update(id, updateJobDto);
   }
 
+  @Roles(Role.RECRUITER)
   @Delete(':id')
   removeJob(@Param('id') id: string) {
     return this.jobService.remove(id);

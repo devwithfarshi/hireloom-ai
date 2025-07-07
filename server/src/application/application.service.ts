@@ -1,6 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateApplicationDto, GetApplicationsDto, UpdateApplicationDto } from './dto/application.dto';
+import {
+  CreateApplicationDto,
+  GetApplicationsDto,
+  UpdateApplicationDto,
+} from './dto/application.dto';
 import { Application, ApplicationStatus, Role } from '@prisma/client';
 import { paginatePrisma, PaginatedResult } from 'src/helpers/paginate-prisma';
 
@@ -8,7 +16,10 @@ import { paginatePrisma, PaginatedResult } from 'src/helpers/paginate-prisma';
 export class ApplicationService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: string, data: CreateApplicationDto): Promise<Application> {
+  async create(
+    userId: string,
+    data: CreateApplicationDto,
+  ): Promise<Application> {
     // Check if user is a candidate
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -62,7 +73,9 @@ export class ApplicationService {
     });
   }
 
-  async findAll(query: GetApplicationsDto): Promise<PaginatedResult<Application>> {
+  async findAll(
+    query: GetApplicationsDto,
+  ): Promise<PaginatedResult<Application>> {
     const { status, page = 1, limit = 10 } = query;
 
     const whereConditions = {
@@ -109,8 +122,11 @@ export class ApplicationService {
     );
   }
 
-  async findByCandidate(candidateId: string, query: GetApplicationsDto): Promise<PaginatedResult<Application>> {
-    const { status, page = 1, limit = 10 } = query;
+  async findByCandidate(
+    candidateId: string,
+    query: GetApplicationsDto,
+  ): Promise<PaginatedResult<Application>> {
+    const { status, page = 1, limit = 9 } = query;
 
     const whereConditions = {
       candidateId,
@@ -143,7 +159,10 @@ export class ApplicationService {
     );
   }
 
-  async findByJob(jobId: string, query: GetApplicationsDto): Promise<PaginatedResult<Application>> {
+  async findByJob(
+    jobId: string,
+    query: GetApplicationsDto,
+  ): Promise<PaginatedResult<Application>> {
     const { status, page = 1, limit = 10 } = query;
 
     const whereConditions = {

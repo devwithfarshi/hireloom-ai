@@ -15,8 +15,8 @@ export class GetJobsDto {
   @IsOptional()
   @Type(() => Number)
   @IsInt()
-  @Min(10)
-  limit: number = 10;
+  @Min(9)
+  limit: number = 9;
 
   @IsOptional()
   @Type(() => Number)
@@ -40,6 +40,11 @@ export class GetJobsDto {
   @IsBoolean()
   @Type(() => Boolean)
   active?: boolean;
+  
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  isRemote?: boolean;
 }
 
 export class CreateJobDto {
@@ -72,6 +77,10 @@ export class CreateJobDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
+  
+  @IsBoolean()
+  @IsOptional()
+  isRemote?: boolean;
 }
 
 export class UpdateJobDto {
@@ -104,4 +113,8 @@ export class UpdateJobDto {
   @IsOptional()
   @IsBoolean()
   active?: boolean;
+  
+  @IsOptional()
+  @IsBoolean()
+  isRemote?: boolean;
 }

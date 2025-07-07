@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: nest
     networks:
-      - hirewise-ai
+      - HireLoom-ai
 
 networks:
-  hirewise-ai: {}
+  HireLoom-ai: {}

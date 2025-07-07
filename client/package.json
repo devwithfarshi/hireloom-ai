@@ -1,5 +1,5 @@
 {
-  "name": "hirewise-ai",
+  "name": "HireLoom-ai",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -31,6 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "input-otp": "^1.4.2",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.525.0",
     "moment": "^2.30.1",
     "react": "^19.0.0",
@@ -46,6 +47,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/lodash": "^4.17.20",
     "@types/node": "^24.0.7",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",

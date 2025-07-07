@@ -1,11 +1,11 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/lib/store';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { RootState } from "@/lib/store";
 
 export enum EmploymentType {
-  FULL_TIME = 'FULL_TIME',
-  PART_TIME = 'PART_TIME',
-  CONTRACT = 'CONTRACT',
-  FREELANCE = 'FREELANCE',
+  FULL_TIME = "FULL_TIME",
+  PART_TIME = "PART_TIME",
+  CONTRACT = "CONTRACT",
+  FREELANCE = "FREELANCE",
 }
 
 export interface Job {
@@ -17,6 +17,7 @@ export interface Job {
   employmentType: EmploymentType;
   experience: number;
   active: boolean;
+  isRemote: boolean;
   tags: string[];
   createdAt: string;
   updatedAt: string;
@@ -25,6 +26,7 @@ export interface Job {
     name: string;
     industry: string;
     location: string;
+    domain: string;
   };
 }
 
@@ -35,6 +37,7 @@ export interface GetJobsParams {
   location?: string;
   employmentType?: EmploymentType;
   active?: boolean;
+  isRemote?: boolean;
 }
 
 export interface CreateJobRequest {
@@ -45,6 +48,7 @@ export interface CreateJobRequest {
   experience: number;
   tags?: string[];
   active?: boolean;
+  isRemote?: boolean;
 }
 
 export interface UpdateJobRequest {
@@ -56,6 +60,7 @@ export interface UpdateJobRequest {
   experience?: number;
   tags?: string[];
   active?: boolean;
+  isRemote?: boolean;
 }
 
 export interface PaginatedResponse<T> {
@@ -73,66 +78,66 @@ export interface PaginatedResponse<T> {
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
-  credentials: 'include',
+  credentials: "include",
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
     if (token) {
-      headers.set('authorization', `Bearer ${token}`);
+      headers.set("authorization", `Bearer ${token}`);
     }
     return headers;
   },
 });
 
 export const jobApi = createApi({
-  reducerPath: 'jobApi',
+  reducerPath: "jobApi",
   baseQuery,
-  tagTypes: ['Job'],
+  tagTypes: ["Job"],
   endpoints: (builder) => ({
-    getJobs: builder.query<PaginatedResponse<Job>, GetJobsParams>({  
+    getJobs: builder.query<PaginatedResponse<Job>, GetJobsParams>({
       query: (params) => ({
-        url: '/jobs',
-        method: 'GET',
+        url: "/jobs",
+        method: "GET",
         params,
       }),
-      providesTags: ['Job'],
+      providesTags: ["Job"],
     }),
-    getCompanyJobs: builder.query<PaginatedResponse<Job>, GetJobsParams>({  
+    getCompanyJobs: builder.query<PaginatedResponse<Job>, GetJobsParams>({
       query: (params) => ({
-        url: '/jobs/company',
-        method: 'GET',
+        url: "/jobs/company",
+        method: "GET",
         params,
       }),
-      providesTags: ['Job'],
+      providesTags: ["Job"],
     }),
-    getJobById: builder.query<Job, string>({  
+    getJobById: builder.query<Job, string>({
       query: (id) => `/jobs/${id}`,
-      providesTags: ['Job'],
+      providesTags: ["Job"],
     }),
-    createJob: builder.mutation<Job, CreateJobRequest>({  
+    createJob: builder.mutation<Job, CreateJobRequest>({
       query: (data) => ({
-        url: '/jobs',
-        method: 'POST',
+        url: "/jobs",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['Job'],
+      invalidatesTags: ["Job"],
     }),
-    updateJob: builder.mutation<Job, UpdateJobRequest>({  
+    updateJob: builder.mutation<Job, UpdateJobRequest>({
       query: (data) => {
         const { id, ...updateData } = data;
         return {
           url: `/jobs/${id}`,
-          method: 'PATCH',
+          method: "PATCH",
           body: updateData,
         };
       },
-      invalidatesTags: ['Job'],
+      invalidatesTags: ["Job"],
     }),
-    deleteJob: builder.mutation<void, string>({  
+    deleteJob: builder.mutation<void, string>({
       query: (id) => ({
         url: `/jobs/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Job'],
+      invalidatesTags: ["Job"],
     }),
   }),
 });
