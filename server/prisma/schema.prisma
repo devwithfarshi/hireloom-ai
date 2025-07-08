@@ -46,6 +46,7 @@ model User {
   company          Company?
   candidateProfile CandidateProfile?
   applications     Application[]
+  CandidateResume  CandidateResume?
 
   @@map("users")
 }
@@ -55,7 +56,7 @@ model Company {
   name        String
   industry    String
   location    String
-  companySize String?  
+  companySize String?
   domain      String?
   userId      String   @unique @db.Uuid
   user        User     @relation(fields: [userId], references: [id])
@@ -75,8 +76,8 @@ model Job {
   location       String
   employmentType EmploymentType @default(FULL_TIME)
   experience     Int
-  active         Boolean      @default(true)
-  isRemote       Boolean      @default(false)
+  active         Boolean        @default(true)
+  isRemote       Boolean        @default(false)
   tags           String[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -86,19 +87,34 @@ model Job {
 }
 
 model CandidateProfile {
-  id           String       @id @default(uuid()) @db.Uuid
-  userId       String       @unique @db.Uuid
-  user         User         @relation(fields: [userId], references: [id])
-  location     String
-  openToRemote Boolean      @default(false)
-  resumeUrl    String
-  skills       String[]
-  experience   Int
-  socialLinks  Json[]       @default([])
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id              String           @id @default(uuid()) @db.Uuid
+  userId          String           @unique @db.Uuid
+  user            User             @relation(fields: [userId], references: [id])
+  location        String
+  openToRemote    Boolean          @default(false)
+  resumeUrl       String
+  skills          String[]
+  experience      Int
+  socialLinks     Json[]           @default([])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  candidateResume CandidateResume?
 
   @@map("candidate_profiles")
+}
+
+model CandidateResume {
+  id               String           @id @default(uuid()) @db.Uuid
+  candidateId      String           @unique @db.Uuid
+  candidate        User             @relation(fields: [candidateId], references: [id])
+  s3Key            String
+  originalName     String
+  fileType         String
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  candidateProfile CandidateProfile @relation(fields: [candidateId], references: [userId], map: "candidateResume_profile_fkey")
+
+  @@map("candidate_resumes")
 }
 
 model Application {

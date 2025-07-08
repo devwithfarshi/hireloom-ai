@@ -268,7 +268,7 @@ export class AuthService {
           secret: this.configService.get<string>('JWT_SECRET') || (() => {
             throw new Error('JWT_SECRET is not defined in the environment variables');
           })(),
-          expiresIn: '15m',
+          expiresIn: '7d',
         },
       ),
       this.jwtService.signAsync(
@@ -280,7 +280,7 @@ export class AuthService {
           secret: this.configService.get<string>('JWT_REFRESH_SECRET') || (() => {
             throw new Error('JWT_REFRESH_SECRET is not defined in the environment variables');
           })(),
-          expiresIn: '7d',
+          expiresIn: '30d',
         },
       ),
     ]);

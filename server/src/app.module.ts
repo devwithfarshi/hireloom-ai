@@ -8,6 +8,8 @@ import { CompanyModule } from './company/company.module';
 import { CandidateProfileModule } from './candidate-profile/candidate-profile.module';
 import { JobModule } from './job/job.module';
 import { ApplicationModule } from './application/application.module';
+import { S3Module } from './s3/s3.module';
+import { CandidateResumeModule } from './candidate-resume/candidate-resume.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { ApplicationModule } from './application/application.module';
     CandidateProfileModule,
     JobModule,
     ApplicationModule,
+    S3Module,
+    CandidateResumeModule,
   ],
   controllers: [],
   providers: [],
