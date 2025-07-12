@@ -15,6 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { User, UserCheck } from "lucide-react";
 import { ProfileUpdateFormValues, profileUpdateSchema } from "../schemas";
 import { useUpdateProfileMutation } from "../userApi";
 
@@ -56,9 +57,16 @@ export function ProfileUpdateForm() {
           name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>First Name</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <User className="w-4 h-4" />
+                First Name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter your first name" {...field} />
+                <Input 
+                  placeholder="Enter your first name" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,16 +78,27 @@ export function ProfileUpdateForm() {
           name="lastName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Last Name</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <UserCheck className="w-4 h-4" />
+                Last Name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter your last name" {...field} />
+                <Input 
+                  placeholder="Enter your last name" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button 
+          type="submit" 
+          className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02] mt-6" 
+          disabled={isLoading}
+        >
           {isLoading ? (
             <>
               <Spinner className="mr-2" />

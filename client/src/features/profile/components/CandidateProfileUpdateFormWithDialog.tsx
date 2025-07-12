@@ -24,7 +24,7 @@ import { useGetMeQuery } from "@/features/auth/authApi";
 import { useAuth } from "@/features/auth/hooks";
 import { handleApiError } from "@/lib/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Dribbble, Github, Globe, Linkedin, Plus, Trash2 } from "lucide-react";
+import { Dribbble, Github, Globe, Linkedin, Plus, Trash2, MapPin, FileText, Code, Briefcase } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Resolver, useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -139,15 +139,22 @@ export function CandidateProfileUpdateFormWithDialog() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Location
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter your location" {...field} />
+                <Input 
+                  placeholder="Enter your location" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -158,10 +165,13 @@ export function CandidateProfileUpdateFormWithDialog() {
           control={form.control}
           name="openToRemote"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border-2 border-gray-200 dark:border-gray-700 p-4 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Remote Work</FormLabel>
-                <p className="text-sm text-muted-foreground">
+                <FormLabel className="text-base text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Remote Work
+                </FormLabel>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Are you open to remote work opportunities?
                 </p>
               </div>
@@ -180,9 +190,16 @@ export function CandidateProfileUpdateFormWithDialog() {
           name="resumeUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Resume URL</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Resume URL
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter your resume URL" {...field} />
+                <Input 
+                  placeholder="Enter your resume URL" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -194,13 +211,17 @@ export function CandidateProfileUpdateFormWithDialog() {
           name="skills"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Skills</FormLabel>
-              <FormDescription>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Code className="w-4 h-4" />
+                Skills
+              </FormLabel>
+              <FormDescription className="text-gray-600 dark:text-gray-400">
                 List your relevant skills (comma `,` separated).
               </FormDescription>
               <FormControl>
                 <Input
-                  placeholder="Enter your skills (comma separated)"
+                  placeholder="React, TypeScript, Node.js, Python..."
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
                   {...field}
                 />
               </FormControl>
@@ -214,9 +235,18 @@ export function CandidateProfileUpdateFormWithDialog() {
           name="experience"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Years of Experience</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                Years of Experience
+              </FormLabel>
               <FormControl>
-                <Input type="number" min="0" {...field} />
+                <Input 
+                  type="number" 
+                  min="0" 
+                  placeholder="0"
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -229,8 +259,11 @@ export function CandidateProfileUpdateFormWithDialog() {
           render={() => (
             <FormItem className="space-y-4">
               <div>
-                <FormLabel>Social Links</FormLabel>
-                <FormDescription>
+                <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Social Links
+                </FormLabel>
+                <FormDescription className="text-gray-600 dark:text-gray-400">
                   Add links to your professional profiles
                 </FormDescription>
               </div>
@@ -253,6 +286,7 @@ export function CandidateProfileUpdateFormWithDialog() {
                                   <FormControl>
                                     <Input
                                       placeholder={`Enter your ${form.getValues(`socialLinks.${index}.platform`)} URL`}
+                                      className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
                                       {...field}
                                     />
                                   </FormControl>
@@ -282,7 +316,7 @@ export function CandidateProfileUpdateFormWithDialog() {
                     value={selectedPlatform}
                     onValueChange={setSelectedPlatform}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors">
                       <SelectValue placeholder="Select platform" />
                     </SelectTrigger>
                     <SelectContent>
@@ -303,6 +337,7 @@ export function CandidateProfileUpdateFormWithDialog() {
                   size="sm"
                   onClick={handleAddSocialLink}
                   disabled={!selectedPlatform}
+                  className="border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-400 dark:text-emerald-400 dark:hover:bg-emerald-950 transition-colors"
                 >
                   <Plus className="h-4 w-4 mr-1" /> Add
                 </Button>
@@ -311,13 +346,21 @@ export function CandidateProfileUpdateFormWithDialog() {
           )}
         />
 
-        <div className="flex justify-between mt-6">
+        <div className="flex justify-between gap-4 mt-8">
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button 
+              type="button" 
+              variant="outline"
+              className="flex-1 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+            >
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+          >
             {isLoading ? (
               <>
                 <Spinner className="mr-2" />

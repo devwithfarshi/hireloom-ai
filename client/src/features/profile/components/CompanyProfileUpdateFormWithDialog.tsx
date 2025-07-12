@@ -15,6 +15,7 @@ import { handleApiError } from "@/lib/errorHandler";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Resolver, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { Building2, MapPin, Users, Globe, Briefcase } from "lucide-react";
 import { useUpdateCompanyMutation } from "@/features/company/companyApi";
 import {
   CompanyProfileFormValues,
@@ -86,15 +87,22 @@ export function CompanyProfileUpdateFormWithDialog() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Name</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Building2 className="w-4 h-4" />
+                Company Name
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter company name" {...field} />
+                <Input 
+                  placeholder="Enter company name" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,9 +114,16 @@ export function CompanyProfileUpdateFormWithDialog() {
           name="industry"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Industry</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Briefcase className="w-4 h-4" />
+                Industry
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter industry" {...field} />
+                <Input 
+                  placeholder="Enter industry" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -120,9 +135,16 @@ export function CompanyProfileUpdateFormWithDialog() {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <MapPin className="w-4 h-4" />
+                Location
+              </FormLabel>
               <FormControl>
-                <Input placeholder="Enter location" {...field} />
+                <Input 
+                  placeholder="Enter location" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
+                  {...field} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,14 +156,17 @@ export function CompanyProfileUpdateFormWithDialog() {
           name="companySize"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Size</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Company Size
+              </FormLabel>
               <Select
                 onValueChange={field.onChange}
                 defaultValue={field.value}
                 value={field.value}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors">
                     <SelectValue placeholder="Select company size" />
                   </SelectTrigger>
                 </FormControl>
@@ -153,7 +178,7 @@ export function CompanyProfileUpdateFormWithDialog() {
                   ))}
                 </SelectContent>
               </Select>
-              <FormDescription>
+              <FormDescription className="text-gray-600 dark:text-gray-400">
                 Number of employees in your company
               </FormDescription>
               <FormMessage />
@@ -166,14 +191,18 @@ export function CompanyProfileUpdateFormWithDialog() {
           name="domain"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company Domain</FormLabel>
+              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                Company Domain
+              </FormLabel>
               <FormControl>
                 <Input 
                   placeholder="Enter company domain (e.g., company.com)" 
+                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
                   {...field} 
                 />
               </FormControl>
-              <FormDescription>
+              <FormDescription className="text-gray-600 dark:text-gray-400">
                 Your company's website domain
               </FormDescription>
               <FormMessage />
@@ -181,13 +210,21 @@ export function CompanyProfileUpdateFormWithDialog() {
           )}
         />
 
-        <div className="flex justify-between mt-6">
+        <div className="flex justify-between gap-4 mt-8">
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button 
+              type="button" 
+              variant="outline"
+              className="flex-1 border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+            >
               Cancel
             </Button>
           </DialogClose>
-          <Button type="submit" disabled={isLoading}>
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-[1.02]"
+          >
             {isLoading ? (
               <>
                 <Spinner className="mr-2" />

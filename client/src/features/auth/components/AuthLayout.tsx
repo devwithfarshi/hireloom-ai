@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -7,13 +6,20 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 dark:bg-gray-900">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-md dark:bg-gray-800">
-        <div className="flex justify-center mb-6">
-          <Link to="/" className="flex flex-col items-center">
-            <img src="/logo/logo.png" alt="HireLoom AI Logo" className="h-16" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl space-y-8">
+        {/* Logo Header */}
+        {/* <div className="text-center">
+          <Link to="/" className="inline-block">
+            <div className="inline-flex items-center justify-center h-20 aspect-video bg-white dark:bg-slate-800 rounded-2xl shadow-lg hover:scale-105 transition-transform duration-200 overflow-hidden">
+              <img
+                src="/logo/logo.png"
+                alt="ATS AI Logo"
+                className="w-full h-full object-contain"
+              />
+            </div>
           </Link>
-        </div>
+        </div> */}
         {children}
       </div>
     </div>
