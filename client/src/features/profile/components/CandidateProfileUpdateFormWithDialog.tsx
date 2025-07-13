@@ -33,6 +33,7 @@ import {
   CandidateProfileFormValues,
   candidateProfileSchema,
 } from "../schemas/candidateProfileSchema";
+import { ResumeUpload } from "./ResumeUpload";
 
 export function CandidateProfileUpdateFormWithDialog() {
   const { user } = useAuth();
@@ -46,7 +47,6 @@ export function CandidateProfileUpdateFormWithDialog() {
     defaultValues: {
       location: "",
       openToRemote: false,
-      resumeUrl: "",
       skills: "",
       experience: 0,
       socialLinks: [],
@@ -91,7 +91,6 @@ export function CandidateProfileUpdateFormWithDialog() {
     form.reset({
       location: user.candidateProfile.location || "",
       openToRemote: user.candidateProfile.openToRemote || false,
-      resumeUrl: user.candidateProfile.resumeUrl || "",
       skills: skillsString,
       experience: user.candidateProfile.experience || 0,
       socialLinks: user.candidateProfile.socialLinks || [],
@@ -185,26 +184,18 @@ export function CandidateProfileUpdateFormWithDialog() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="resumeUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Resume URL
-              </FormLabel>
-              <FormControl>
-                <Input 
-                  placeholder="Enter your resume URL" 
-                  className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
-                  {...field} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="space-y-2">
+          <label className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            Resume
+          </label>
+          <ResumeUpload
+            onUploadSuccess={(url) => {
+              // Resume is now handled separately via CandidateResume model
+              toast.success("Resume uploaded successfully!");
+            }}
+          />
+        </div>
 
         <FormField
           control={form.control}

@@ -8,6 +8,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Pagination,
   PaginationContent,
   PaginationEllipsis,
@@ -24,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PDFViewer } from "@/components/ui/pdf-viewer";
 import {
   Application,
   useGetJobApplicationsQuery,
@@ -33,6 +41,68 @@ import { ArrowLeftIcon, FileIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetJobByIdQuery } from "../jobApi";
+import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
+
+// Component to handle resume viewing
+function ResumeViewLink({ candidateId }: { candidateId?: string }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { data: resumeData, isLoading, error } = useGetResumeByCandidateIdQuery(candidateId!, {
+    skip: !candidateId || !isDialogOpen,
+  });
+
+  if (!candidateId) {
+    return null;
+  }
+
+  const handleDialogOpen = () => {
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
+
+  return (
+    <div className="mt-4">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" onClick={handleDialogOpen}>
+            <FileIcon className="h-4 w-4 mr-2" />
+            View Resume
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Resume</DialogTitle>
+          </DialogHeader>
+          <div className="p-6 pt-0">
+            {isLoading && (
+              <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                  <p className="text-sm text-muted-foreground">Loading resume...</p>
+                </div>
+              </div>
+            )}
+            {error && (
+              <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                  <p className="text-destructive mb-4">Failed to load resume</p>
+                  <Button variant="outline" onClick={handleDialogClose}>
+                    Close
+                  </Button>
+                </div>
+              </div>
+            )}
+            {resumeData?.url && !isLoading && !error && (
+              <PDFViewer url={resumeData.url} height={600} />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
 export function JobApplicantsPage() {
   const { id } = useParams<{ id: string }>();
@@ -274,21 +344,7 @@ export function JobApplicantsPage() {
                       )}
                     </div>
 
-                    {application.candidate?.candidateProfile?.resumeUrl && (
-                      <div className="mt-4">
-                        <a
-                          href={
-                            application.candidate.candidateProfile.resumeUrl
-                          }
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center text-sm text-primary hover:underline"
-                        >
-                          <FileIcon className="h-4 w-4 mr-1" />
-                          View Resume
-                        </a>
-                      </div>
-                    )}
+                    <ResumeViewLink candidateId={application.candidate?.id} />
 
                     {application.notes && (
                       <div className="mt-4 p-3 bg-muted rounded-md">

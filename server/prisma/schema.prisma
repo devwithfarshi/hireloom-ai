@@ -92,7 +92,6 @@ model CandidateProfile {
   user            User             @relation(fields: [userId], references: [id])
   location        String
   openToRemote    Boolean          @default(false)
-  resumeUrl       String
   skills          String[]
   experience      Int
   socialLinks     Json[]           @default([])

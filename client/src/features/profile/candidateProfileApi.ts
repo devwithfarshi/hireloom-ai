@@ -11,7 +11,6 @@ export interface CandidateProfile {
   userId: string;
   location: string;
   openToRemote: boolean;
-  resumeUrl: string;
   skills: string[];
   experience: number;
   socialLinks?: SocialLink[];
@@ -28,7 +27,6 @@ export interface CandidateProfile {
 export interface CreateCandidateProfileRequest {
   location: string;
   openToRemote?: boolean;
-  resumeUrl: string;
   skills: string[];
   experience: number;
   socialLinks?: SocialLink[];
@@ -38,7 +36,6 @@ export interface UpdateCandidateProfileRequest {
   id: string;
   location?: string;
   openToRemote?: boolean;
-  resumeUrl?: string;
   skills?: string[];
   experience?: number;
   socialLinks?: SocialLink[];

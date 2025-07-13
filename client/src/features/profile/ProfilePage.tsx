@@ -63,7 +63,7 @@ export function ProfilePage() {
                         <Edit className="h-3 w-3" /> Edit
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px]">
+                    <DialogContent className="sm:max-w-[500px] h-[90vh] overflow-auto">
                       <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                           <Briefcase className="h-5 w-5 text-primary" />
@@ -106,24 +106,29 @@ export function ProfilePage() {
                       ))}
                     </div>
                   </p>
-                  {user.candidateProfile.socialLinks && user.candidateProfile.socialLinks.length > 0 && (
-                    <p className="flex items-start gap-2">
-                      <span className="text-muted-foreground">Social Links:</span>
-                      <div className="flex flex-col gap-1">
-                        {user.candidateProfile.socialLinks.map((link, index) => (
-                          <a 
-                            key={index} 
-                            href={link.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline flex items-center gap-1"
-                          >
-                            {link.platform}
-                          </a>
-                        ))}
-                      </div>
-                    </p>
-                  )}
+                  {user.candidateProfile.socialLinks &&
+                    user.candidateProfile.socialLinks.length > 0 && (
+                      <p className="flex items-start gap-2">
+                        <span className="text-muted-foreground">
+                          Social Links:
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          {user.candidateProfile.socialLinks.map(
+                            (link, index) => (
+                              <a
+                                key={index}
+                                href={link.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline flex items-center gap-1"
+                              >
+                                {link.platform}
+                              </a>
+                            )
+                          )}
+                        </div>
+                      </p>
+                    )}
                 </p>
               ) : (
                 <p className="text-muted-foreground">
@@ -179,16 +184,18 @@ export function ProfilePage() {
                   </p>
                   {user.company.companySize && (
                     <p className="flex items-center gap-2">
-                      <span className="text-muted-foreground">Company Size:</span>
+                      <span className="text-muted-foreground">
+                        Company Size:
+                      </span>
                       {user.company.companySize}
                     </p>
                   )}
                   {user.company.domain && (
                     <p className="flex items-center gap-2">
                       <span className="text-muted-foreground">Domain:</span>
-                      <a 
-                        href={`https://${user.company.domain}`} 
-                        target="_blank" 
+                      <a
+                        href={`https://${user.company.domain}`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >

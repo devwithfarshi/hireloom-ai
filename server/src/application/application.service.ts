@@ -110,7 +110,6 @@ export class ApplicationService {
               candidateProfile: {
                 select: {
                   id: true,
-                  resumeUrl: true,
                   experience: true,
                   skills: true,
                 },
@@ -186,7 +185,6 @@ export class ApplicationService {
               candidateProfile: {
                 select: {
                   id: true,
-                  resumeUrl: true,
                   experience: true,
                   skills: true,
                 },
@@ -226,7 +224,6 @@ export class ApplicationService {
             candidateProfile: {
               select: {
                 id: true,
-                resumeUrl: true,
                 experience: true,
                 skills: true,
               },

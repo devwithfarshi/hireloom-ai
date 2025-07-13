@@ -21,10 +21,6 @@ export class CreateCandidateProfileDto {
   @IsOptional()
   openToRemote?: boolean;
 
-  @IsString()
-  @IsNotEmpty({ message: 'Resume URL is required' })
-  resumeUrl: string;
-
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty({ message: 'Skills are required' })
@@ -50,10 +46,6 @@ export class UpdateCandidateProfileDto {
   @IsBoolean()
   @IsOptional()
   openToRemote?: boolean;
-
-  @IsString()
-  @IsOptional()
-  resumeUrl?: string;
 
   @IsArray()
   @IsString({ each: true })

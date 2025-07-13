@@ -5,6 +5,7 @@ import authReducer, { logout } from "../features/auth/authSlice";
 import { companyApi } from "../features/company/companyApi";
 import { candidateProfileApi } from "../features/profile/candidateProfileApi";
 import { userApi } from "../features/profile/userApi";
+import { resumeApi } from "../features/profile/resumeApi";
 import { jobApi } from "../features/job/jobApi";
 import { applicationApi } from "../services/applicationApi";
 
@@ -17,6 +18,7 @@ const resetApiOnLogout =
       api.dispatch(userApi.util.resetApiState());
       api.dispatch(companyApi.util.resetApiState());
       api.dispatch(candidateProfileApi.util.resetApiState());
+      api.dispatch(resumeApi.util.resetApiState());
       api.dispatch(jobApi.util.resetApiState());
       api.dispatch(applicationApi.util.resetApiState());
     }
@@ -30,6 +32,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,
     [candidateProfileApi.reducerPath]: candidateProfileApi.reducer,
+    [resumeApi.reducerPath]: resumeApi.reducer,
     [jobApi.reducerPath]: jobApi.reducer,
     [applicationApi.reducerPath]: applicationApi.reducer,
   },
@@ -40,6 +43,7 @@ export const store = configureStore({
         userApi.middleware,
         companyApi.middleware,
         candidateProfileApi.middleware,
+        resumeApi.middleware,
         jobApi.middleware,
         applicationApi.middleware
       )

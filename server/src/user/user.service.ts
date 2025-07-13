@@ -31,7 +31,6 @@ export class UserService {
       },
       select: {
         id: true,
-        resumeUrl: true,
         skills: true,
         openToRemote: true,
         location: true,

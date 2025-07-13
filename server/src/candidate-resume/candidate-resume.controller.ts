@@ -4,6 +4,7 @@ import {
   Get,
   InternalServerErrorException,
   MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
   Post,
   UploadedFile,
@@ -52,6 +53,14 @@ export class CandidateResumeController {
   async getResumeByCandidateId(@GetUser() user: User) {
     const resume = await this.candidateResumeService.getResumeByCandidateId(
       user.id,
+    );
+    return resume;
+  }
+
+  @Get('by-candidate-id/:candidateId')
+  async getResumeByCandidateIdParam(@Param('candidateId') candidateId: string) {
+    const resume = await this.candidateResumeService.getResumeByCandidateId(
+      candidateId,
     );
     return resume;
   }

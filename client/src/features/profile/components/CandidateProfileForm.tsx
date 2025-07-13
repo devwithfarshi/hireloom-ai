@@ -22,6 +22,7 @@ import {
   CandidateProfileFormValues,
   candidateProfileSchema,
 } from "../schemas/candidateProfileSchema";
+import { ResumeUpload } from "./ResumeUpload";
 
 export function CandidateProfileForm() {
   const [createProfile, { isLoading }] = useCreateCandidateProfileMutation();
@@ -33,7 +34,6 @@ export function CandidateProfileForm() {
     defaultValues: {
       location: "",
       openToRemote: false,
-      resumeUrl: "",
       skills: "",
       experience: 0,
     },
@@ -59,7 +59,7 @@ export function CandidateProfileForm() {
       <Card className="relative p-8 bg-gradient-to-br from-white to-gray-50 dark:from-slate-800 dark:to-slate-900 border-2 shadow-2xl overflow-hidden">
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 opacity-5" />
-        
+
         {/* Content */}
         <div className="relative z-10 space-y-6">
           {/* Header */}
@@ -76,7 +76,7 @@ export function CandidateProfileForm() {
               </p>
             </div>
           </div>
-          
+
           {/* Form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -90,10 +90,10 @@ export function CandidateProfileForm() {
                       Location
                     </FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter your location" 
+                      <Input
+                        placeholder="Enter your location"
                         className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -125,29 +125,18 @@ export function CandidateProfileForm() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="resumeUrl"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      Resume URL
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="https://example.com/resume.pdf"
-                        className="border-2 focus:border-emerald-500 dark:focus:border-emerald-400 transition-colors"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription className="text-gray-600 dark:text-gray-400">
-                      Link to your resume (Google Drive, Dropbox, etc.)
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="space-y-2">
+                <label className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Resume
+                </label>
+                <ResumeUpload
+                  onUploadSuccess={(url: string) => {
+                    // Resume is now handled separately via CandidateResume model
+                    toast.success("Resume uploaded successfully!");
+                  }}
+                />
+              </div>
 
               <FormField
                 control={form.control}

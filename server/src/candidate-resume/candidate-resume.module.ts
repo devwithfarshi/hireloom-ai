@@ -12,7 +12,7 @@ import { CandidateResumeService } from './candidate-resume.service';
       throttlers: [
         {
           ttl: 60,
-          limit: 1,
+          limit: 3,
         },
       ],
     }),

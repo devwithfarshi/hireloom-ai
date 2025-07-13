@@ -37,6 +37,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.59.0",
+    "react-pdf": "^10.0.1",
     "react-quill-new": "^3.4.6",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.1",

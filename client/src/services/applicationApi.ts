@@ -28,7 +28,6 @@ export interface Application {
     email: string;
     candidateProfile?: {
       id: string;
-      resumeUrl?: string;
       experience?: string;
       skills?: string[];
     };
