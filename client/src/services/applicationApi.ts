@@ -7,8 +7,8 @@ export interface Application {
   candidateId: string;
   jobId: string;
   status: ApplicationStatus;
-  score?: number;
-  notes?: string;
+  score: number | null;
+  notes: string | null;
   createdAt: string;
   updatedAt: string;
   job?: {
@@ -23,13 +23,13 @@ export interface Application {
   };
   candidate?: {
     id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    candidateProfile?: {
+    experience?: string;
+    skills?: string[];
+    user?: {
       id: string;
-      experience?: string;
-      skills?: string[];
+      firstName: string;
+      lastName: string;
+      email: string;
     };
   };
 }
@@ -66,7 +66,8 @@ const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
   credentials: "include",
   prepareHeaders: (headers, { getState }) => {
-    const token = (getState() as RootState).auth.token;
+    const state = getState() as RootState;
+    const token = state.auth.token;
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }

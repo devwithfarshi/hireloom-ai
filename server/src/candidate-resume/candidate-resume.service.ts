@@ -17,7 +17,7 @@ export class CandidateResumeService {
         .join('-') || 'resume'
     }.${data.file.originalname.split('.').pop()}`;
     const key = `resume/${data.user.id}/${fileName}`;
-    const result = await this.s3Service.upload({
+    await this.s3Service.upload({
       file: data.file.buffer,
       Key: key,
     });

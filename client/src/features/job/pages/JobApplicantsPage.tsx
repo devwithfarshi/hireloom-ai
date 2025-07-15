@@ -50,17 +50,17 @@ import { useGetJobByIdQuery } from "../jobApi";
 import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
 
 // Component to handle resume viewing
-function ResumeViewLink({ candidateId }: { candidateId?: string }) {
+function ResumeViewLink({ candidateUserId }: { candidateUserId?: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const {
     data: resumeData,
     isLoading,
     error,
-  } = useGetResumeByCandidateIdQuery(candidateId!, {
-    skip: !candidateId || !isDialogOpen,
+  } = useGetResumeByCandidateIdQuery(candidateUserId!, {
+    skip: !candidateUserId || !isDialogOpen,
   });
 
-  if (!candidateId) {
+  if (!candidateUserId) {
     return null;
   }
 
@@ -367,11 +367,11 @@ export function JobApplicantsPage() {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-lg">
-                          {application.candidate?.firstName}{" "}
-                          {application.candidate?.lastName}
+                          {application.candidate?.user?.firstName}{" "}
+                          {application.candidate?.user?.lastName}
                         </h3>
                         <p className="text-sm text-muted-foreground">
-                          {application.candidate?.email}
+                          {application.candidate?.user?.email}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -394,16 +394,16 @@ export function JobApplicantsPage() {
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-4">
-                      {application.candidate?.candidateProfile?.skills?.map(
-                        (skill) => (
-                          <Badge key={skill} variant="outline">
-                            {skill}
-                          </Badge>
-                        )
-                      )}
+                      {application.candidate?.skills?.map((skill) => (
+                        <Badge key={skill} variant="outline">
+                          {skill}
+                        </Badge>
+                      ))}
                     </div>
 
-                    <ResumeViewLink candidateId={application.candidate?.id} />
+                    <ResumeViewLink
+                      candidateUserId={application.candidate?.user?.id}
+                    />
 
                     {application.notes && (
                       <div className="mt-4 p-3 bg-muted rounded-md">

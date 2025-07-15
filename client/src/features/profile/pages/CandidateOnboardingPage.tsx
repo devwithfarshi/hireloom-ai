@@ -21,7 +21,7 @@ export function CandidateOnboardingPage() {
             Please provide your details to help employers find you
           </p>
         </div>
-        <CandidateProfileForm />
+        <CandidateProfileForm isResumeUploadShow={false} />
       </div>
     </AuthLayout>
   );

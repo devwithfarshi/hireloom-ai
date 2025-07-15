@@ -24,7 +24,11 @@ import {
 } from "../schemas/candidateProfileSchema";
 import { ResumeUpload } from "./ResumeUpload";
 
-export function CandidateProfileForm() {
+export function CandidateProfileForm({
+  isResumeUploadShow = true,
+}: {
+  isResumeUploadShow?: boolean;
+}) {
   const [createProfile, { isLoading }] = useCreateCandidateProfileMutation();
 
   const form = useForm<CandidateProfileFormValues>({
@@ -125,18 +129,20 @@ export function CandidateProfileForm() {
                 )}
               />
 
-              <div className="space-y-2">
-                <label className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
-                  Resume
-                </label>
-                <ResumeUpload
-                  onUploadSuccess={(url: string) => {
-                    // Resume is now handled separately via CandidateResume model
-                    toast.success("Resume uploaded successfully!");
-                  }}
-                />
-              </div>
+              {isResumeUploadShow && (
+                <div className="space-y-2">
+                  <label className="text-slate-700 dark:text-slate-300 font-medium flex items-center gap-2">
+                    <FileText className="w-4 h-4" />
+                    Resume
+                  </label>
+                  <ResumeUpload
+                    onUploadSuccess={(url: string) => {
+                      // Resume is now handled separately via CandidateResume model
+                      toast.success("Resume uploaded successfully!");
+                    }}
+                  />
+                </div>
+              )}
 
               <FormField
                 control={form.control}

@@ -179,14 +179,14 @@ export class ApplicationService {
           candidate: {
             select: {
               id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-              candidateProfile: {
+              experience: true,
+              skills: true,
+              user: {
                 select: {
                   id: true,
-                  experience: true,
-                  skills: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
                 },
               },
             },
