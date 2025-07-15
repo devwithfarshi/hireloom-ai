@@ -366,9 +366,15 @@ export function JobApplicantsPage() {
                   <div className="p-6">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-lg">
+                        <h3 className="font-semibold text-lg flex items-center gap-2">
                           {application.candidate?.user?.firstName}{" "}
                           {application.candidate?.user?.lastName}
+                          {application.score !== undefined &&
+                            application.score !== null && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                                Score: {application.score.toFixed(1)}
+                              </span>
+                            )}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                           {application.candidate?.user?.email}

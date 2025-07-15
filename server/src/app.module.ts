@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from './config/config.module';
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './auth/auth.module';
-import { EmailModule } from './email/email.module';
-import { UserModule } from './user/user.module';
-import { CompanyModule } from './company/company.module';
-import { CandidateProfileModule } from './candidate-profile/candidate-profile.module';
-import { JobModule } from './job/job.module';
 import { ApplicationModule } from './application/application.module';
-import { S3Module } from './s3/s3.module';
+import { AuthModule } from './auth/auth.module';
+import { CandidateProfileModule } from './candidate-profile/candidate-profile.module';
 import { CandidateResumeModule } from './candidate-resume/candidate-resume.module';
+import { CompanyModule } from './company/company.module';
+import { ConfigModule } from './config/config.module';
+import { EmailModule } from './email/email.module';
+import { JobModule } from './job/job.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { S3Module } from './s3/s3.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [

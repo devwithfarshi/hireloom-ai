@@ -25,5 +25,6 @@ import { CandidateResumeService } from './candidate-resume.service';
       useClass: ThrottlerGuard,
     },
   ],
+  exports: [CandidateResumeService],
 })
 export class CandidateResumeModule {}

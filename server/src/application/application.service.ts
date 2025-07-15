@@ -1,3 +1,4 @@
+import { ScoringService } from './../scoring/scoring.service';
 import {
   BadRequestException,
   Injectable,
@@ -11,10 +12,14 @@ import {
   GetApplicationsDto,
   UpdateApplicationDto,
 } from './dto/application.dto';
+import { InjectQueue } from '@nestjs/bullmq';
 
 @Injectable()
 export class ApplicationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private scoringService: ScoringService,
+  ) {}
 
   async create(
     userId: string,
@@ -280,6 +285,8 @@ export class ApplicationService {
     if (!job) {
       throw new BadRequestException('Job not found');
     }
+
+    await this.scoringService.startScoring(job.id, job.applications);
 
     return job;
   }
