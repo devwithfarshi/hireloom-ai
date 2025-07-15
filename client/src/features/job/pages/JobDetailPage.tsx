@@ -162,7 +162,10 @@ export function JobDetailPage() {
               </span>
             </div>
             {job.isRemote && (
-              <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-200">
+              <Badge
+                variant="secondary"
+                className="bg-green-100 text-green-800 hover:bg-green-200"
+              >
                 Remote Position
               </Badge>
             )}
@@ -201,10 +204,7 @@ export function JobDetailPage() {
               </Button>
             )}
             {isAuthenticated && user?.role === Role.CANDIDATE && (
-              <Button
-                onClick={handleApply}
-                disabled={isApplying}
-              >
+              <Button onClick={handleApply} disabled={isApplying}>
                 <SendIcon className="mr-2 h-4 w-4" />
                 {isApplying ? "Submitting..." : "Apply Now"}
               </Button>

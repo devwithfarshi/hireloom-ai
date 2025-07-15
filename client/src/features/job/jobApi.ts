@@ -17,6 +17,7 @@ export interface Job {
   employmentType: EmploymentType;
   experience: number;
   active: boolean;
+  isScoring: boolean;
   isRemote: boolean;
   tags: string[];
   createdAt: string;

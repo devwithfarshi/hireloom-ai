@@ -8,7 +8,7 @@ export class UserService {
   async getMe(user: User) {
     const companyID = await this.prisma.company.findUnique({
       where: {
-        userId: user.id,
+        companyUserId: user.id,
       },
       select: {
         id: true,
@@ -27,7 +27,7 @@ export class UserService {
     }
     const candidateProfileID = await this.prisma.candidateProfile.findUnique({
       where: {
-        userId: user.id,
+        candidateUserId: user.id,
       },
       select: {
         id: true,

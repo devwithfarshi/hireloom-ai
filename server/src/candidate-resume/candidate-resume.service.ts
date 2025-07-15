@@ -23,7 +23,7 @@ export class CandidateResumeService {
     });
     const existResume = await this.prisma.candidateResume.findFirst({
       where: {
-        candidateId: data.user.id,
+        candidateUserId: data.user.id,
         s3Key: key,
         fileType: data.file.mimetype,
       },
@@ -34,7 +34,7 @@ export class CandidateResumeService {
 
     const resume = await this.prisma.candidateResume.create({
       data: {
-        candidateId: data.user.id,
+        candidateUserId: data.user.id,
         s3Key: key,
         originalName: fileName,
         fileType: data.file.mimetype,
@@ -45,10 +45,10 @@ export class CandidateResumeService {
     }
     return true;
   }
-  async getResumeByCandidateId(candidateId: string) {
+  async getResumeByCandidateId(candidateUserId: string) {
     const resume = await this.prisma.candidateResume.findFirst({
       where: {
-        candidateId,
+        candidateUserId,
       },
     });
     if (!resume) {

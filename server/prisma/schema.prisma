@@ -7,6 +7,106 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id               String            @id @default(uuid()) @db.Uuid
+  email            String            @unique
+  password         String
+  firstName        String?
+  lastName         String?
+  isVerified       Boolean           @default(false)
+  role             Role              @default(RECRUITER)
+  verifyToken      String?           @unique
+  refreshToken     String?
+  resetToken       String?           @unique
+  resetTokenExpiry DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  candidateProfile CandidateProfile?
+  company          Company?
+
+  @@map("users")
+}
+
+model Company {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  industry    String
+  location    String
+  companyUserId      String   @unique @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  companySize String?
+  domain      String?
+  user        User     @relation(fields: [companyUserId], references: [id])
+  jobs        Job[]
+
+  @@map("companies")
+}
+
+model Job {
+  id             String         @id @default(uuid()) @db.Uuid
+  companyId      String         @db.Uuid
+  title          String
+  description    String
+  location       String
+  employmentType EmploymentType @default(FULL_TIME)
+  experience     Int
+  active         Boolean        @default(true)
+  isScoring      Boolean        @default(false)
+  tags           String[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  isRemote       Boolean        @default(false)
+  applications   Application[]
+  company        Company        @relation(fields: [companyId], references: [id])
+
+  @@map("jobs")
+}
+
+model CandidateProfile {
+  id              String           @id @default(uuid()) @db.Uuid
+  candidateUserId          String           @unique @db.Uuid
+  location        String
+  openToRemote    Boolean          @default(false)
+  skills          String[]
+  experience      Int
+  socialLinks     Json[]           @default([])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  user            User             @relation(fields: [candidateUserId], references: [id])
+  CandidateResume CandidateResume?
+  applications     Application[]
+  @@map("candidate_profiles")
+}
+
+model CandidateResume {
+  id           String           @id @default(uuid()) @db.Uuid
+  candidateUserId  String           @unique @db.Uuid
+  s3Key        String
+  originalName String
+  fileType     String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  candidate    CandidateProfile @relation(fields: [candidateUserId], references: [candidateUserId], map: "candidateResume_profile_fkey")
+
+  @@map("candidate_resumes")
+}
+
+model Application {
+  id          String            @id @default(uuid()) @db.Uuid
+  candidateUserId String            @db.Uuid
+  jobId       String            @db.Uuid
+  status      ApplicationStatus @default(PENDING)
+  score       Int?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  candidate   CandidateProfile              @relation(fields: [candidateUserId], references: [candidateUserId])
+  job         Job               @relation(fields: [jobId], references: [id])
+
+  @@map("applications")
+}
+
 enum Role {
   SUPER_ADMIN
   RECRUITER
@@ -26,107 +126,4 @@ enum ApplicationStatus {
   SHORTLISTED
   REJECTED
   HIRED
-}
-
-model User {
-  id               String    @id @default(uuid()) @db.Uuid
-  email            String    @unique
-  password         String
-  firstName        String?
-  lastName         String?
-  isVerified       Boolean   @default(false)
-  role             Role      @default(RECRUITER)
-  verifyToken      String?   @unique
-  refreshToken     String?
-  resetToken       String?   @unique
-  resetTokenExpiry DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-
-  company          Company?
-  candidateProfile CandidateProfile?
-  applications     Application[]
-  CandidateResume  CandidateResume?
-
-  @@map("users")
-}
-
-model Company {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String
-  industry    String
-  location    String
-  companySize String?
-  domain      String?
-  userId      String   @unique @db.Uuid
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  jobs        Job[]
-
-  @@map("companies")
-}
-
-model Job {
-  id             String         @id @default(uuid()) @db.Uuid
-  companyId      String         @db.Uuid
-  company        Company        @relation(fields: [companyId], references: [id])
-  title          String
-  description    String
-  location       String
-  employmentType EmploymentType @default(FULL_TIME)
-  experience     Int
-  active         Boolean        @default(true)
-  isRemote       Boolean        @default(false)
-  tags           String[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  applications   Application[]
-
-  @@map("jobs")
-}
-
-model CandidateProfile {
-  id              String           @id @default(uuid()) @db.Uuid
-  userId          String           @unique @db.Uuid
-  user            User             @relation(fields: [userId], references: [id])
-  location        String
-  openToRemote    Boolean          @default(false)
-  skills          String[]
-  experience      Int
-  socialLinks     Json[]           @default([])
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  candidateResume CandidateResume?
-
-  @@map("candidate_profiles")
-}
-
-model CandidateResume {
-  id               String           @id @default(uuid()) @db.Uuid
-  candidateId      String           @unique @db.Uuid
-  candidate        User             @relation(fields: [candidateId], references: [id])
-  s3Key            String
-  originalName     String
-  fileType         String
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  candidateProfile CandidateProfile @relation(fields: [candidateId], references: [userId], map: "candidateResume_profile_fkey")
-
-  @@map("candidate_resumes")
-}
-
-model Application {
-  id          String            @id @default(uuid()) @db.Uuid
-  candidateId String            @db.Uuid
-  candidate   User              @relation(fields: [candidateId], references: [id])
-  jobId       String            @db.Uuid
-  job         Job               @relation(fields: [jobId], references: [id])
-  status      ApplicationStatus @default(PENDING)
-  score       Int?
-  notes       String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-
-  @@map("applications")
 }

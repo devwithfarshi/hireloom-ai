@@ -76,4 +76,9 @@ export class ApplicationController {
   remove(@Param('id') id: string) {
     return this.applicationService.remove(id);
   }
+  @Patch('/:jobId/start-scoring')
+  @Roles(Role.RECRUITER, Role.SUPER_ADMIN)
+  startScoring(@Param('jobId') jobId: string) {
+    return this.applicationService.startScoring(jobId);
+  }
 }

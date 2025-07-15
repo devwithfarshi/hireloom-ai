@@ -3,14 +3,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Application, ApplicationStatus, Job, Role } from '@prisma/client';
+import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateApplicationDto,
   GetApplicationsDto,
   UpdateApplicationDto,
 } from './dto/application.dto';
-import { Application, ApplicationStatus, Role } from '@prisma/client';
-import { paginatePrisma, PaginatedResult } from 'src/helpers/paginate-prisma';
 
 @Injectable()
 export class ApplicationService {
@@ -54,7 +54,7 @@ export class ApplicationService {
     // Check if user has already applied to this job
     const existingApplication = await this.prisma.application.findFirst({
       where: {
-        candidateId: userId,
+        candidateUserId: userId,
         jobId: data.jobId,
       },
     });
@@ -66,7 +66,7 @@ export class ApplicationService {
     // Create application
     return this.prisma.application.create({
       data: {
-        candidateId: userId,
+        candidateUserId: userId,
         jobId: data.jobId,
         status: ApplicationStatus.PENDING,
       },
@@ -218,14 +218,16 @@ export class ApplicationService {
         candidate: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-            candidateProfile: {
+            experience: true,
+            skills: true,
+          },
+          include: {
+            user: {
               select: {
                 id: true,
-                experience: true,
-                skills: true,
+                firstName: true,
+                lastName: true,
+                email: true,
               },
             },
           },
@@ -255,5 +257,30 @@ export class ApplicationService {
     await this.prisma.application.delete({
       where: { id },
     });
+  }
+
+  async startScoring(jobId: string): Promise<Job> {
+    const job = await this.prisma.job.update({
+      where: {
+        id: jobId,
+      },
+      data: {
+        isScoring: true,
+        active: false,
+      },
+      include: {
+        applications: {
+          select: {
+            id: true,
+            candidateUserId: true,
+          },
+        },
+      },
+    });
+    if (!job) {
+      throw new BadRequestException('Job not found');
+    }
+
+    return job;
   }
 }

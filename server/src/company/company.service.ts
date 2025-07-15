@@ -48,7 +48,7 @@ export class CompanyService {
   async create(userId: string, data: CreateCompanyDto) {
     const companyExistForUser = await this.prisma.company.findUnique({
       where: {
-        userId,
+        companyUserId: userId,
       },
     });
     if (companyExistForUser) {
@@ -61,7 +61,7 @@ export class CompanyService {
         location: data.location,
         companySize: data.companySize,
         domain: data.domain,
-        userId,
+        companyUserId: userId,
       },
     });
   }
@@ -92,7 +92,7 @@ export class CompanyService {
     const company = await this.prisma.company.findFirst({
       where: {
         id,
-        userId,
+        companyUserId: userId,
       },
     });
 
@@ -112,7 +112,7 @@ export class CompanyService {
     const company = await this.prisma.company.findFirst({
       where: {
         id,
-        userId,
+        companyUserId: userId,
       },
     });
 

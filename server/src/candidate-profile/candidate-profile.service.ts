@@ -16,7 +16,7 @@ export class CandidateProfileService {
   async create(userId: string, data: CreateCandidateProfileDto) {
     const profileExists = await this.prisma.candidateProfile.findUnique({
       where: {
-        userId,
+        candidateUserId: userId,
       },
     });
 
@@ -41,7 +41,7 @@ export class CandidateProfileService {
     const prismaData = {
       ...restData,
       openToRemote: restData.openToRemote || false,
-      userId,
+      candidateUserId: userId,
       // Convert socialLinks to plain objects if they exist
       ...(socialLinks && {
         socialLinks: socialLinks.map((link) => ({ ...link })),
@@ -55,7 +55,7 @@ export class CandidateProfileService {
 
   async findByUserId(userId: string) {
     const profile = await this.prisma.candidateProfile.findUnique({
-      where: { userId },
+      where: { candidateUserId: userId },
       include: {
         user: {
           select: {
@@ -77,14 +77,16 @@ export class CandidateProfileService {
 
   async update(id: string, userId: string, data: UpdateCandidateProfileDto) {
     const profile = await this.prisma.candidateProfile.findFirst({
-      where: { 
+      where: {
         id,
-        userId 
+        candidateUserId: userId,
       },
     });
 
     if (!profile) {
-      throw new NotFoundException(`Profile with ID ${id} not found or you don't have permission to update it`);
+      throw new NotFoundException(
+        `Profile with ID ${id} not found or you don't have permission to update it`,
+      );
     }
 
     const { socialLinks, ...restData } = data;

@@ -1,15 +1,16 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Job, User } from '@prisma/client';
 import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateJobDto, GetJobsDto, UpdateJobDto } from './dto/job.dto';
+import { Job, User } from '@prisma/client';
 
 @Injectable()
 export class JobService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(query: GetJobsDto): Promise<PaginatedResult<Job>> {
-    const { limit, page, search, location, employmentType, active, isRemote } = query;
+    const { limit, page, search, location, employmentType, active, isRemote } =
+      query;
 
     const whereConditions = {
       ...(search && {
@@ -35,10 +36,11 @@ export class JobService {
     user: User,
     query: GetJobsDto,
   ): Promise<PaginatedResult<Job>> {
-    const { limit, page, search, location, employmentType, active, isRemote } = query;
+    const { limit, page, search, location, employmentType, active, isRemote } =
+      query;
     const company = await this.prisma.company.findUnique({
       where: {
-        userId: user.id,
+        companyUserId: user.id,
       },
       select: {
         id: true,
@@ -71,7 +73,7 @@ export class JobService {
   async create(user: User, createJobDto: CreateJobDto): Promise<Job> {
     const company = await this.prisma.company.findUnique({
       where: {
-        userId: user.id,
+        companyUserId: user.id,
       },
       select: {
         id: true,

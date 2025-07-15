@@ -7,9 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -35,18 +39,24 @@ import { PDFViewer } from "@/components/ui/pdf-viewer";
 import {
   Application,
   useGetJobApplicationsQuery,
+  useStartScoringMutation,
 } from "@/services/applicationApi";
 import { ApplicationStatus } from "@/types";
-import { ArrowLeftIcon, FileIcon } from "lucide-react";
+import { ArrowLeftIcon, FileIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useGetJobByIdQuery } from "../jobApi";
 import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
 
 // Component to handle resume viewing
 function ResumeViewLink({ candidateId }: { candidateId?: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { data: resumeData, isLoading, error } = useGetResumeByCandidateIdQuery(candidateId!, {
+  const {
+    data: resumeData,
+    isLoading,
+    error,
+  } = useGetResumeByCandidateIdQuery(candidateId!, {
     skip: !candidateId || !isDialogOpen,
   });
 
@@ -80,7 +90,9 @@ function ResumeViewLink({ candidateId }: { candidateId?: string }) {
               <div className="flex items-center justify-center h-96">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                  <p className="text-sm text-muted-foreground">Loading resume...</p>
+                  <p className="text-sm text-muted-foreground">
+                    Loading resume...
+                  </p>
                 </div>
               </div>
             )}
@@ -103,6 +115,7 @@ function ResumeViewLink({ candidateId }: { candidateId?: string }) {
     </div>
   );
 }
+import { handleApiError } from "@/lib/errorHandler";
 
 export function JobApplicantsPage() {
   const { id } = useParams<{ id: string }>();
@@ -112,6 +125,8 @@ export function JobApplicantsPage() {
   const [status, setStatus] = useState<ApplicationStatus | undefined>();
 
   const { data: job, isLoading: isJobLoading } = useGetJobByIdQuery(id!);
+  const [startScoring, { isLoading: isStartScoringLoading }] =
+    useStartScoringMutation();
   const { data: applicationsData, isLoading: isApplicationsLoading } =
     useGetJobApplicationsQuery(
       { jobId: id!, page, limit, status },
@@ -119,7 +134,7 @@ export function JobApplicantsPage() {
     );
 
   const handleBack = () => {
-    navigate(`/jobs/${id}`);
+    navigate(-1);
   };
 
   const handlePageChange = (newPage: number) => {
@@ -216,7 +231,15 @@ export function JobApplicantsPage() {
 
     return items;
   };
-
+  const handleStartScoring = async () => {
+    try {
+      await startScoring(id!).unwrap();
+      toast.success("Scoring started successfully");
+      setPage(1);
+    } catch (error: any) {
+      handleApiError(error);
+    }
+  };
   if (isJobLoading) {
     return (
       <div className="container mx-auto max-w-4xl py-8">
@@ -242,11 +265,47 @@ export function JobApplicantsPage() {
 
   return (
     <div className="container mx-auto max-w-4xl py-8">
-      <Button variant="outline" onClick={handleBack} className="mb-6">
-        <ArrowLeftIcon className="mr-2 h-4 w-4" />
-        Back to Job
-      </Button>
-
+      <div className="mb-6 flex justify-between">
+        <Button variant="outline" onClick={handleBack}>
+          <ArrowLeftIcon className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        {!job?.isScoring ? (
+          <Dialog>
+            <DialogTrigger disabled={job?.isScoring || isStartScoringLoading}>
+              <Button
+                variant="outline"
+                className=" py-3 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white"
+                disabled={job?.isScoring || isStartScoringLoading}
+              >
+                <SparklesIcon className="h-4 w-4" />
+                {isStartScoringLoading ? "Loading..." : "Start Scoring"}
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogTitle>Start Scoring</DialogTitle>
+              <DialogDescription>
+                Job will be inactive after scoring is started.
+              </DialogDescription>
+              <DialogFooter>
+                <DialogClose>
+                  <Button
+                    variant="outline"
+                    className=" py-3 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white"
+                    onClick={handleStartScoring}
+                  >
+                    Start Scoring
+                  </Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ) : (
+          <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white">
+            In Scoring
+          </Badge>
+        )}
+      </div>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">

@@ -1,6 +1,6 @@
+import { RootState } from "@/lib/store";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ApplicationStatus } from "../types";
-import { RootState } from "@/lib/store";
 
 export interface Application {
   id: string;
@@ -139,6 +139,13 @@ export const applicationApi = createApi({
       }),
       invalidatesTags: ["Application"],
     }),
+    startScoring: builder.mutation<Application, string>({
+      query: (id) => ({
+        url: `applications/${id}/start-scoring`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Application"],
+    }),
   }),
 });
 
@@ -150,4 +157,5 @@ export const {
   useCreateApplicationMutation,
   useUpdateApplicationMutation,
   useDeleteApplicationMutation,
+  useStartScoringMutation,
 } = applicationApi;

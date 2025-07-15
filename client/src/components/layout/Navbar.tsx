@@ -49,12 +49,14 @@ export function Navbar() {
             >
               Profile
             </Link>
-            <Link
-              to="/jobs"
-              className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              Browse Jobs
-            </Link>
+            {user?.role === Role.CANDIDATE && (
+              <Link
+                to="/jobs"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Browse Jobs
+              </Link>
+            )}
             {user?.role === Role.CANDIDATE && (
               <Link
                 to="/my-applications"
