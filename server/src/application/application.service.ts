@@ -127,13 +127,13 @@ export class ApplicationService {
   }
 
   async findByCandidate(
-    candidateId: string,
+    candidateUserId: string,
     query: GetApplicationsDto,
   ): Promise<PaginatedResult<Application>> {
     const { status, page = 1, limit = 9 } = query;
 
     const whereConditions = {
-      candidateId,
+      candidateUserId,
       ...(status && { status }),
     };
 
