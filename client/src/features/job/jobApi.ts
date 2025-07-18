@@ -8,6 +8,12 @@ export enum EmploymentType {
   FREELANCE = "FREELANCE",
 }
 
+export enum ScoringStatus {
+  PENDING = "PENDING",
+  SCORING = "SCORING",
+  COMPLETE = "COMPLETE",
+}
+
 export interface Job {
   id: string;
   companyId: string;
@@ -17,7 +23,7 @@ export interface Job {
   employmentType: EmploymentType;
   experience: number;
   active: boolean;
-  isScoring: boolean;
+  scoringStatus: ScoringStatus;
   isRemote: boolean;
   tags: string[];
   createdAt: string;

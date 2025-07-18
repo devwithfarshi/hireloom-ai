@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CandidateResumeService } from './../candidate-resume/candidate-resume.service';
+import { AgentService, JobRequirements, CandidateProfile } from 'src/agent/agent.service';
+import { ScoringStatus } from '@prisma/client';
 export interface ScoringPayload {
   jobId: string;
   applications: {
@@ -60,6 +62,7 @@ export class TaskScoringProcessor extends WorkerHost {
   constructor(
     private prisma: PrismaService,
     private candidateResumeService: CandidateResumeService,
+    private agentService: AgentService,
   ) {
     super();
   }
@@ -104,31 +107,89 @@ export class TaskScoringProcessor extends WorkerHost {
         );
       }
 
-      // Get candidate resume
-      const candidateResumeUrl =
-        await this.candidateResumeService.getResumeByCandidateId(
-          candidateUserId,
-        );
+      // Get candidate resume content
+      let resumeContent = '';
+      try {
+        const { url: candidateResumeUrl } =
+          await this.candidateResumeService.getResumeByCandidateId(
+            candidateUserId,
+          );
+        
+        // Note: In a real implementation, you would fetch and parse the resume content from S3
+        // For now, we'll work with the available profile data
+        resumeContent = `Resume available at: ${candidateResumeUrl}`;
+      } catch (error) {
+        this.logger.warn(`Could not fetch resume for candidate ${candidateUserId}`, error.message);
+      }
 
-      // TODO: Replace with actual AI scoring logic
-      const score = Math.random() * 100;
+      // Prepare data for AI scoring
+      const jobRequirements: JobRequirements = {
+        title: jobInfo.title,
+        description: jobInfo.description,
+        employmentType: jobInfo.employmentType,
+        experience: jobInfo.experience,
+        tags: jobInfo.tags,
+      };
+
+      const candidateProfile: CandidateProfile = {
+        experience: candidateInfo.experience,
+        skills: candidateInfo.skills,
+        resumeContent,
+      };
+
+      // Score candidate using Gemini AI
+      const scoringResult = await this.agentService.scoreCandidate(
+        jobRequirements,
+        candidateProfile,
+      );
 
       // Update application score with transaction safety
       await this.prisma.$transaction(async (tx) => {
         await tx.application.update({
           where: { id: applicationId },
           data: {
-            score: Math.round(score),
+            score: scoringResult.score,
             status: 'REVIEWED',
+            notes: JSON.stringify({
+              reasoning: scoringResult.reasoning,
+              strengths: scoringResult.strengths,
+              weaknesses: scoringResult.weaknesses,
+              recommendations: scoringResult.recommendations,
+              scoredAt: new Date().toISOString(),
+            }),
           },
         });
+
+        // Check if all applications for this job have been scored
+        const totalApplications = await tx.application.count({
+          where: { jobId },
+        });
+
+        const scoredApplications = await tx.application.count({
+          where: {
+            jobId,
+            score: { not: null },
+          },
+        });
+
+        // If all applications are scored, update job status to COMPLETE
+        if (totalApplications === scoredApplications) {
+          await tx.job.update({
+            where: { id: jobId },
+            data: {
+              scoringStatus: ScoringStatus.COMPLETE,
+            },
+          });
+          this.logger.debug(`All applications scored for job ${jobId}. Job scoring status updated to COMPLETE.`);
+        }
       });
 
-      this.logger.debug('Application scored successfully', {
+      this.logger.debug('Application scored successfully with Gemini AI', {
         applicationId,
-        score: Math.round(score),
+        score: scoringResult.score,
         jobId,
         candidateUserId,
+        reasoning: scoringResult.reasoning.substring(0, 100) + '...',
       });
     } catch (error) {
       this.logger.error(`Task scoring failed for job ${job.id}`, {

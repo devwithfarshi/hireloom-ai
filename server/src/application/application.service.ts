@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Application, ApplicationStatus, Job, Role } from '@prisma/client';
+import { Application, ApplicationStatus, Job, Role, ScoringStatus } from '@prisma/client';
 import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -270,7 +270,7 @@ export class ApplicationService {
         id: jobId,
       },
       data: {
-        isScoring: true,
+        scoringStatus: ScoringStatus.SCORING,
         active: false,
       },
       include: {

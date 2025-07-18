@@ -136,7 +136,7 @@ export function CandidateProfileForm({
                     Resume
                   </label>
                   <ResumeUpload
-                    onUploadSuccess={(url: string) => {
+                    onUploadSuccess={() => {
                       // Resume is now handled separately via CandidateResume model
                       toast.success("Resume uploaded successfully!");
                     }}

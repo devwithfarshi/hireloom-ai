@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { BullConfigModule } from 'src/bull/bull.module';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CandidateResumeModule } from 'src/candidate-resume/candidate-resume.module';
+import { AgentModule } from 'src/agent/agent.module';
 import { ScoringProcessor, TaskScoringProcessor } from './scoring.processor';
 import { ScoringService } from './scoring.service';
 
@@ -11,6 +12,7 @@ import { ScoringService } from './scoring.service';
     BullConfigModule,
     PrismaModule,
     CandidateResumeModule,
+    AgentModule,
     BullModule.registerQueue({
       name: 'scoring',
       defaultJobOptions: {

@@ -46,7 +46,7 @@ import { ArrowLeftIcon, FileIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useGetJobByIdQuery } from "../jobApi";
+import { useGetJobByIdQuery, ScoringStatus } from "../jobApi";
 import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
 
 // Component to handle resume viewing
@@ -270,13 +270,13 @@ export function JobApplicantsPage() {
           <ArrowLeftIcon className="mr-2 h-4 w-4" />
           Back
         </Button>
-        {!job?.isScoring ? (
+        {job?.scoringStatus === ScoringStatus.PENDING ? (
           <Dialog>
-            <DialogTrigger disabled={job?.isScoring || isStartScoringLoading}>
+            <DialogTrigger disabled={job?.scoringStatus !== ScoringStatus.PENDING || isStartScoringLoading}>
               <Button
                 variant="outline"
                 className=" py-3 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white"
-                disabled={job?.isScoring || isStartScoringLoading}
+                disabled={job?.scoringStatus !== ScoringStatus.PENDING || isStartScoringLoading}
               >
                 <SparklesIcon className="h-4 w-4" />
                 {isStartScoringLoading ? "Loading..." : "Start Scoring"}
@@ -302,7 +302,7 @@ export function JobApplicantsPage() {
           </Dialog>
         ) : (
           <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white">
-            In Scoring
+            {job?.scoringStatus === ScoringStatus.SCORING ? "In Scoring" : "Scoring Complete"}
           </Badge>
         )}
       </div>

@@ -52,7 +52,7 @@ model Job {
   employmentType EmploymentType @default(FULL_TIME)
   experience     Int
   active         Boolean        @default(true)
-  isScoring      Boolean        @default(false)
+  scoringStatus  ScoringStatus  @default(PENDING)
   tags           String[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
@@ -126,4 +126,10 @@ enum ApplicationStatus {
   SHORTLISTED
   REJECTED
   HIRED
+}
+
+enum ScoringStatus {
+  PENDING
+  SCORING
+  COMPLETE
 }

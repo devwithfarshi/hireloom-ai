@@ -9,7 +9,9 @@ import { EmailModule } from './email/email.module';
 import { JobModule } from './job/job.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { S3Module } from './s3/s3.module';
+import { ScoringModule } from './scoring/scoring.module';
 import { UserModule } from './user/user.module';
+import { AgentModule } from './agent/agent.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { UserModule } from './user/user.module';
     ApplicationModule,
     S3Module,
     CandidateResumeModule,
+    ScoringModule,
+    AgentModule,
   ],
   controllers: [],
   providers: [],
