@@ -8,6 +8,7 @@ import { userApi } from "../features/profile/userApi";
 import { resumeApi } from "../features/profile/resumeApi";
 import { jobApi } from "../features/job/jobApi";
 import { applicationApi } from "../features/application/applicationApi";
+import chatbotReducer from "../features/chatbot/chatbotSlice";
 
 const resetApiOnLogout =
   (api: { dispatch: (action: any) => void }) =>
@@ -28,6 +29,7 @@ const resetApiOnLogout =
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    chatbot: chatbotReducer,
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [companyApi.reducerPath]: companyApi.reducer,

@@ -41,7 +41,7 @@ import {
   useGetJobApplicationsQuery,
   useUpdateApplicationMutation,
 } from "@/features/application/applicationApi";
-import { ApplicationStatus } from "@/types";
+import { ApplicationStatus } from "@/features/application/types";
 import {
   ArrowLeftIcon,
   FileIcon,

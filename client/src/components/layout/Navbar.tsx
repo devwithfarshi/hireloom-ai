@@ -5,13 +5,16 @@ import { useLogoutMutation } from "@/features/auth/authApi";
 import { logout } from "@/features/auth/authSlice";
 import { useAuth } from "@/features/auth/hooks";
 import { Role } from "@/features/auth/types";
-import { useAppDispatch } from "@/lib/hooks";
+import { toggleChatbot } from "@/features/chatbot/chatbotSlice";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { MessageSquare, SparklesIcon } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 export function Navbar() {
   const { user } = useAuth();
   const dispatch = useAppDispatch();
+  const { isOpen: isChatbotOpen } = useAppSelector((state) => state.chatbot);
   const [logoutApi, { isLoading }] = useLogoutMutation();
 
   const handleLogout = async () => {
@@ -22,6 +25,10 @@ export function Navbar() {
     } catch (error: any) {
       toast.error(error?.data?.message || "Failed to logout");
     }
+  };
+
+  const handleChatbotToggle = () => {
+    dispatch(toggleChatbot());
   };
 
   return (
@@ -76,6 +83,27 @@ export function Navbar() {
           </div>
         </div>
         <div className="flex items-center space-x-4">
+          {/* AI Assistant Toggle */}
+          {(user?.role === Role.RECRUITER ||
+            user?.role === Role.SUPER_ADMIN) && (
+            <Button
+              onClick={handleChatbotToggle}
+              variant={isChatbotOpen ? "default" : "outline"}
+              size="sm"
+              className={`relative ${
+                isChatbotOpen
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                  : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
+              }`}
+            >
+              <SparklesIcon className="h-4 w-4" />
+              Ask Loo
+              {isChatbotOpen && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
+              )}
+            </Button>
+          )}
+
           <Button
             onClick={handleLogout}
             disabled={isLoading}

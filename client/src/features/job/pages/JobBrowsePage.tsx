@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchIcon, RefreshCwIcon } from "lucide-react";
+import { SearchIcon, RefreshCwIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -49,7 +49,29 @@ export function JobBrowsePage() {
   } = useFilterDebounce();
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [isAiMode, setIsAiMode] = useState(false);
+  const [aiQuery, setAiQuery] = useState("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showAiContent, setShowAiContent] = useState(false);
   const limit = 9;
+
+  const handleAiToggle = async () => {
+    setIsTransitioning(true);
+
+    if (isAiMode) {
+      // Transitioning from AI to normal mode
+      setShowAiContent(false);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      setIsAiMode(false);
+    } else {
+      // Transitioning from normal to AI mode
+      setIsAiMode(true);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      setShowAiContent(true);
+    }
+
+    setIsTransitioning(false);
+  };
 
   const {
     data: jobsData,
@@ -194,7 +216,9 @@ export function JobBrowsePage() {
             disabled={isFetching}
             className="flex items-center gap-2"
           >
-            <RefreshCwIcon className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            <RefreshCwIcon
+              className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -202,106 +226,247 @@ export function JobBrowsePage() {
 
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>Search Jobs</CardTitle>
-          <CardDescription>
-            Filter jobs by title, location, and employment type
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex justify-between items-center">
             <div>
-              <label
-                htmlFor="search"
-                className="text-sm font-medium mb-1 block"
-              >
-                Search
-              </label>
-              <div className="relative">
-                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="search"
-                  placeholder="Search by job title"
-                  className="pl-9"
-                  value={inputValues.search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setCurrentPage(1); // Reset to first page on search change
+              <CardTitle>Search Jobs</CardTitle>
+              <CardDescription>
+                {isAiMode
+                  ? "Use AI to find your perfect job match"
+                  : "Filter jobs by title, location, and employment type"}
+              </CardDescription>
+            </div>
+            <Button
+              variant={isAiMode ? "default" : "outline"}
+              onClick={handleAiToggle}
+              disabled={isTransitioning}
+              className={`flex items-center gap-2 transition-all duration-300 transform hover:scale-105 ${
+                isAiMode
+                  ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg"
+                  : "hover:border-blue-400 hover:text-blue-600"
+              }`}
+            >
+              <SparklesIcon
+                className={`h-4 w-4 transition-all duration-300 ${
+                  isAiMode ? "animate-pulse text-white" : "text-current"
+                } ${isTransitioning ? "animate-spin" : ""}`}
+              />
+              {isTransitioning ? "Switching..." : "Job Search with AI"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="relative overflow-hidden">
+          {/* Animated background particles for AI mode */}
+          {isAiMode && (
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`absolute w-2 h-2 bg-blue-400 rounded-full opacity-30 animate-pulse`}
+                  style={{
+                    left: `${20 + i * 15}%`,
+                    top: `${10 + (i % 3) * 30}%`,
+                    animationDelay: `${i * 0.5}s`,
+                    animationDuration: "2s",
                   }}
                 />
+              ))}
+            </div>
+          )}
+
+          <div
+            className={`transition-all duration-500 ease-in-out ${
+              isTransitioning ? "opacity-50 scale-95" : "opacity-100 scale-100"
+            }`}
+          >
+            {isAiMode ? (
+              <div
+                className={`space-y-4 transition-all duration-700 ease-out transform ${
+                  showAiContent
+                    ? "translate-y-0 opacity-100 scale-100"
+                    : "translate-y-8 opacity-0 scale-95"
+                }`}
+              >
+                <div className="relative">
+                  {/* Animated gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 via-purple-50 to-blue-50 rounded-lg opacity-60 animate-pulse"></div>
+                  <div
+                    className="absolute inset-0 bg-gradient-to-br from-blue-100/20 to-purple-100/20 rounded-lg animate-pulse"
+                    style={{ animationDelay: "1s" }}
+                  ></div>
+
+                  <div className="relative p-6 border-2 border-dashed border-blue-200 rounded-lg bg-gradient-to-r from-blue-50/50 to-purple-50/50 backdrop-blur-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="relative p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
+                        <SparklesIcon className="h-5 w-5 text-white animate-pulse" />
+                        {/* Pulsing ring effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping opacity-20"></div>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
+                          AI-Powered Job Search
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Describe your ideal job and let AI find the perfect
+                          matches
+                        </p>
+                      </div>
+                      {/* Floating sparkles */}
+                      <div className="relative">
+                        {[...Array(3)].map((_, i) => (
+                          <SparklesIcon
+                            key={i}
+                            className={`absolute h-3 w-3 text-blue-400 animate-bounce opacity-60`}
+                            style={{
+                              right: `${i * 8}px`,
+                              top: `${-5 + i * 3}px`,
+                              animationDelay: `${i * 0.3}s`,
+                              animationDuration: "1.5s",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="relative group">
+                      <SparklesIcon className="absolute left-4 top-4 h-5 w-5 text-blue-500 animate-pulse z-10" />
+                      {/* Typing indicator when empty */}
+                      {!aiQuery && (
+                        <div className="absolute left-12 top-4 flex items-center space-x-1">
+                          <div className="w-1 h-4 bg-blue-400 animate-pulse"></div>
+                          <span className="text-blue-400 text-sm animate-pulse">
+                            AI is ready to help...
+                          </span>
+                        </div>
+                      )}
+                      <textarea
+                        placeholder="Tell me about your dream job... (e.g., 'I'm looking for a remote frontend developer position with React and TypeScript, preferably at a startup with good work-life balance')"
+                        className="w-full min-h-[120px] pl-12 pr-4 py-4 border-2 border-blue-200 rounded-lg resize-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-300 bg-white/80 backdrop-blur-sm group-hover:shadow-lg focus:shadow-xl"
+                        value={aiQuery}
+                        onChange={(e) => setAiQuery(e.target.value)}
+                      />
+                      {/* Gradient border effect on focus */}
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-focus-within:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
+                    </div>
+
+                    <div className="mt-4 flex justify-end">
+                      <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                        <SparklesIcon
+                          className="h-4 w-4 animate-spin"
+                          style={{ animationDuration: "3s" }}
+                        />
+                        Search with AI
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <label
-                htmlFor="location"
-                className="text-sm font-medium mb-1 block"
+            ) : (
+              <div
+                className={`transition-all duration-700 ease-out transform ${
+                  !isAiMode && !isTransitioning
+                    ? "translate-y-0 opacity-100 scale-100"
+                    : "translate-y-8 opacity-0 scale-95"
+                }`}
               >
-                Location
-              </label>
-              <Input
-                id="location"
-                placeholder="Enter location"
-                value={inputValues.location}
-                onChange={(e) => {
-                  setLocation(e.target.value);
-                  setCurrentPage(1); // Reset to first page on location change
-                }}
-              />
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label
+                      htmlFor="search"
+                      className="text-sm font-medium mb-1 block"
+                    >
+                      Search
+                    </label>
+                    <div className="relative">
+                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="search"
+                        placeholder="Search by job title"
+                        className="pl-9"
+                        value={inputValues.search}
+                        onChange={(e) => {
+                          setSearch(e.target.value);
+                          setCurrentPage(1); // Reset to first page on search change
+                        }}
+                      />
+                    </div>
+                  </div>
 
-            <div>
-              <label
-                htmlFor="employmentType"
-                className="text-sm font-medium mb-1 block"
-              >
-                Employment Type
-              </label>
-              <Select
-                value={inputValues.employmentType || "all"}
-                onValueChange={(value) => {
-                  setEmploymentType(value);
-                  setCurrentPage(1); // Reset to first page on type change
-                }}
-              >
-                <SelectTrigger id="employmentType" className="w-full">
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
-                  <SelectItem value={EmploymentType.FULL_TIME}>
-                    Full Time
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.PART_TIME}>
-                    Part Time
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.CONTRACT}>
-                    Contract
-                  </SelectItem>
-                  <SelectItem value={EmploymentType.FREELANCE}>
-                    Freelance
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+                  <div>
+                    <label
+                      htmlFor="location"
+                      className="text-sm font-medium mb-1 block"
+                    >
+                      Location
+                    </label>
+                    <Input
+                      id="location"
+                      placeholder="Enter location"
+                      value={inputValues.location}
+                      onChange={(e) => {
+                        setLocation(e.target.value);
+                        setCurrentPage(1); // Reset to first page on location change
+                      }}
+                    />
+                  </div>
 
-          <div className="mt-4 flex items-center">
-            <label
-              htmlFor="isRemote"
-              className="flex items-center cursor-pointer"
-            >
-              <input
-                id="isRemote"
-                type="checkbox"
-                className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                checked={inputValues.isRemote}
-                onChange={(e) => {
-                  setIsRemote(e.target.checked);
-                  setCurrentPage(1); // Reset to first page on remote change
-                }}
-              />
-              <span className="text-sm font-medium">Remote positions only</span>
-            </label>
+                  <div>
+                    <label
+                      htmlFor="employmentType"
+                      className="text-sm font-medium mb-1 block"
+                    >
+                      Employment Type
+                    </label>
+                    <Select
+                      value={inputValues.employmentType || "all"}
+                      onValueChange={(value) => {
+                        setEmploymentType(value);
+                        setCurrentPage(1); // Reset to first page on type change
+                      }}
+                    >
+                      <SelectTrigger id="employmentType" className="w-full">
+                        <SelectValue placeholder="All types" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All types</SelectItem>
+                        <SelectItem value={EmploymentType.FULL_TIME}>
+                          Full Time
+                        </SelectItem>
+                        <SelectItem value={EmploymentType.PART_TIME}>
+                          Part Time
+                        </SelectItem>
+                        <SelectItem value={EmploymentType.CONTRACT}>
+                          Contract
+                        </SelectItem>
+                        <SelectItem value={EmploymentType.FREELANCE}>
+                          Freelance
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center">
+                  <label
+                    htmlFor="isRemote"
+                    className="flex items-center cursor-pointer"
+                  >
+                    <input
+                      id="isRemote"
+                      type="checkbox"
+                      className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      checked={inputValues.isRemote}
+                      onChange={(e) => {
+                        setIsRemote(e.target.checked);
+                        setCurrentPage(1); // Reset to first page on remote change
+                      }}
+                    />
+                    <span className="text-sm font-medium">
+                      Remote positions only
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

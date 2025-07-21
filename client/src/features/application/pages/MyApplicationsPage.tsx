@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useGetMyApplicationsQuery } from "@/features/application/applicationApi";
-import { ApplicationStatus } from "@/types";
+import { ApplicationStatus } from "@/features/application/types";
 import { EmploymentType } from "@/features/job/jobApi";
 import { BuildingIcon, CalendarIcon, MapPinIcon } from "lucide-react";
 import { useState } from "react";
