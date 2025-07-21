@@ -3,7 +3,11 @@ import { Logger } from '@nestjs/common';
 import { Job, Queue } from 'bullmq';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CandidateResumeService } from './../candidate-resume/candidate-resume.service';
-import { AgentService, JobRequirements, CandidateProfile } from 'src/agent/agent.service';
+import {
+  AgentService,
+  JobRequirements,
+  CandidateProfile,
+} from 'src/agent/agent.service';
 import { ScoringStatus } from '@prisma/client';
 export interface ScoringPayload {
   jobId: string;
@@ -110,16 +114,18 @@ export class TaskScoringProcessor extends WorkerHost {
       // Get candidate resume content
       let resumeContent = '';
       try {
-        const { url: candidateResumeUrl } =
-          await this.candidateResumeService.getResumeByCandidateId(
-            candidateUserId,
-          );
-        
-        // Note: In a real implementation, you would fetch and parse the resume content from S3
-        // For now, we'll work with the available profile data
-        resumeContent = `Resume available at: ${candidateResumeUrl}`;
+        resumeContent =
+          await this.candidateResumeService.getResumeContent(candidateUserId);
+        this.logger.debug(
+          `Successfully parsed resume content for candidate ${candidateUserId}. Content length: ${resumeContent.length} characters`,
+        );
       } catch (error) {
-        this.logger.warn(`Could not fetch resume for candidate ${candidateUserId}`, error.message);
+        this.logger.warn(
+          `Could not fetch or parse resume for candidate ${candidateUserId}: ${error.message}`,
+        );
+        // Fallback to basic profile information if resume parsing fails
+        resumeContent =
+          'Resume content could not be parsed. Scoring based on profile data only.';
       }
 
       // Prepare data for AI scoring
@@ -180,7 +186,9 @@ export class TaskScoringProcessor extends WorkerHost {
               scoringStatus: ScoringStatus.COMPLETE,
             },
           });
-          this.logger.debug(`All applications scored for job ${jobId}. Job scoring status updated to COMPLETE.`);
+          this.logger.debug(
+            `All applications scored for job ${jobId}. Job scoring status updated to COMPLETE.`,
+          );
         }
       });
 

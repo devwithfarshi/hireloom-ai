@@ -272,11 +272,19 @@ export function JobApplicantsPage() {
         </Button>
         {job?.scoringStatus === ScoringStatus.PENDING ? (
           <Dialog>
-            <DialogTrigger disabled={job?.scoringStatus !== ScoringStatus.PENDING || isStartScoringLoading}>
+            <DialogTrigger
+              disabled={
+                job?.scoringStatus !== ScoringStatus.PENDING ||
+                isStartScoringLoading
+              }
+            >
               <Button
                 variant="outline"
                 className=" py-3 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white"
-                disabled={job?.scoringStatus !== ScoringStatus.PENDING || isStartScoringLoading}
+                disabled={
+                  job?.scoringStatus !== ScoringStatus.PENDING ||
+                  isStartScoringLoading
+                }
               >
                 <SparklesIcon className="h-4 w-4" />
                 {isStartScoringLoading ? "Loading..." : "Start Scoring"}
@@ -302,7 +310,9 @@ export function JobApplicantsPage() {
           </Dialog>
         ) : (
           <Badge className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white">
-            {job?.scoringStatus === ScoringStatus.SCORING ? "In Scoring" : "Scoring Complete"}
+            {job?.scoringStatus === ScoringStatus.SCORING
+              ? "In Scoring"
+              : "Scoring Complete"}
           </Badge>
         )}
       </div>
@@ -361,65 +371,120 @@ export function JobApplicantsPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {applicationsData?.data.map((application: Application) => (
-                <Card key={application.id} className="overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-lg flex items-center gap-2">
-                          {application.candidate?.user?.firstName}{" "}
-                          {application.candidate?.user?.lastName}
-                          {application.score !== undefined &&
-                            application.score !== null && (
-                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-                                Score: {application.score.toFixed(1)}
-                              </span>
-                            )}
-                        </h3>
-                        <p className="text-sm text-muted-foreground">
-                          {application.candidate?.user?.email}
-                        </p>
+              {applicationsData?.data.map((application: Application) => {
+                const notes = application.notes
+                  ? (JSON.parse(application.notes) as {
+                      score: number;
+                      reasoning: string;
+                      strengths: string[];
+                      weaknesses: string[];
+                      recommendations: string[];
+                    })
+                  : null;
+                return (
+                  <Card key={application.id} className="overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-semibold text-lg flex items-center gap-2">
+                            {application.candidate?.user?.firstName}{" "}
+                            {application.candidate?.user?.lastName}
+                            {application.score !== undefined &&
+                              application.score !== null && (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                                  Score: {application.score.toFixed(1)}
+                                </span>
+                              )}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {application.candidate?.user?.email}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={getStatusVariant(application.status)}
+                            className="capitalize"
+                          >
+                            {application.status.toLowerCase()}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              navigate(`/applications/${application.id}`)
+                            }
+                          >
+                            View Details
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={getStatusVariant(application.status)}
-                          className="capitalize"
-                        >
-                          {application.status.toLowerCase()}
-                        </Badge>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            navigate(`/applications/${application.id}`)
-                          }
-                        >
-                          View Details
-                        </Button>
+
+                      <div className="mt-4 flex flex-wrap gap-4">
+                        {application.candidate?.skills?.map((skill) => (
+                          <Badge key={skill} variant="outline">
+                            {skill}
+                          </Badge>
+                        ))}
                       </div>
+
+                      <ResumeViewLink
+                        candidateUserId={application.candidate?.user?.id}
+                      />
+
+                      {notes && (
+                        <div className="mt-4 space-y-3">
+                          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                            <h4 className="text-sm font-semibold text-blue-900 mb-2">AI Assessment</h4>
+                            <p className="text-sm text-blue-800 leading-relaxed">{notes.reasoning}</p>
+                          </div>
+                          
+                          {notes.strengths && notes.strengths.length > 0 && (
+                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                              <h5 className="text-sm font-medium text-green-900 mb-2">Strengths</h5>
+                              <ul className="text-sm text-green-800 space-y-1">
+                                {notes.strengths.map((strength, index) => (
+                                  <li key={index} className="flex items-start">
+                                    <span className="text-green-600 mr-2">•</span>
+                                    {strength}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {notes.weaknesses && notes.weaknesses.length > 0 && (
+                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <h5 className="text-sm font-medium text-orange-900 mb-2">Areas for Improvement</h5>
+                              <ul className="text-sm text-orange-800 space-y-1">
+                                {notes.weaknesses.map((weakness, index) => (
+                                  <li key={index} className="flex items-start">
+                                    <span className="text-orange-600 mr-2">•</span>
+                                    {weakness}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {notes.recommendations && notes.recommendations.length > 0 && (
+                            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                              <h5 className="text-sm font-medium text-purple-900 mb-2">Recommendations</h5>
+                              <ul className="text-sm text-purple-800 space-y-1">
+                                {notes.recommendations.map((recommendation, index) => (
+                                  <li key={index} className="flex items-start">
+                                    <span className="text-purple-600 mr-2">•</span>
+                                    {recommendation}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-
-                    <div className="mt-4 flex flex-wrap gap-4">
-                      {application.candidate?.skills?.map((skill) => (
-                        <Badge key={skill} variant="outline">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <ResumeViewLink
-                      candidateUserId={application.candidate?.user?.id}
-                    />
-
-                    {application.notes && (
-                      <div className="mt-4 p-3 bg-muted rounded-md">
-                        <p className="text-sm font-medium">Notes:</p>
-                        <p className="text-sm">{application.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           )}
 

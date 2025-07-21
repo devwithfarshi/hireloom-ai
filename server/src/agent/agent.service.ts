@@ -35,9 +35,9 @@ export class AgentService {
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured');
     }
-    
+
     this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 
   /**
@@ -49,18 +49,18 @@ export class AgentService {
   ): Promise<ScoringResult> {
     try {
       const prompt = this.buildScoringPrompt(jobRequirements, candidateProfile);
-      
+
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
-      
+
       return this.parseScoringResponse(text);
     } catch (error) {
       this.logger.error('Failed to score candidate with Gemini AI', {
         error: error.message,
         jobTitle: jobRequirements.title,
       });
-      
+
       // Fallback scoring in case of AI failure
       return this.generateFallbackScore(jobRequirements, candidateProfile);
     }
@@ -85,7 +85,7 @@ Please provide:
 5. Notable achievements
 
 Format the response in clear, concise bullet points.`;
-      
+
       const result = await this.model.generateContent(prompt);
       const response = await result.response;
       return response.text();
@@ -141,25 +141,27 @@ Provide only the JSON response, no additional text.`;
       if (!jsonMatch) {
         throw new Error('No JSON found in response');
       }
-      
+
       const parsed = JSON.parse(jsonMatch[0]);
-      
+
       return {
         score: Math.max(0, Math.min(100, parsed.score || 0)),
         reasoning: parsed.reasoning || 'No reasoning provided',
         strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
         weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses : [],
-        recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : [],
+        recommendations: Array.isArray(parsed.recommendations)
+          ? parsed.recommendations
+          : [],
       };
     } catch (error) {
       this.logger.error('Failed to parse Gemini AI response', {
         error: error.message,
         response: response.substring(0, 500),
       });
-      
+
       // Return a basic fallback response
       return {
-        score: 50,
+        score: 0,
         reasoning: 'Unable to parse AI response, using fallback scoring',
         strengths: ['Profile reviewed'],
         weaknesses: ['Unable to perform detailed analysis'],
@@ -174,9 +176,10 @@ Provide only the JSON response, no additional text.`;
   ): ScoringResult {
     // Simple fallback scoring logic
     let score = 50; // Base score
-    
+
     // Experience scoring
-    const experienceRatio = candidateProfile.experience / Math.max(jobRequirements.experience, 1);
+    const experienceRatio =
+      candidateProfile.experience / Math.max(jobRequirements.experience, 1);
     if (experienceRatio >= 1) {
       score += 20;
     } else if (experienceRatio >= 0.7) {
@@ -184,24 +187,32 @@ Provide only the JSON response, no additional text.`;
     } else if (experienceRatio >= 0.5) {
       score += 10;
     }
-    
+
     // Skills matching
-    const matchingSkills = candidateProfile.skills.filter(skill =>
-      jobRequirements.tags.some(tag => 
-        tag.toLowerCase().includes(skill.toLowerCase()) ||
-        skill.toLowerCase().includes(tag.toLowerCase())
-      )
+    const matchingSkills = candidateProfile.skills.filter((skill) =>
+      jobRequirements.tags.some(
+        (tag) =>
+          tag.toLowerCase().includes(skill.toLowerCase()) ||
+          skill.toLowerCase().includes(tag.toLowerCase()),
+      ),
     );
-    
-    const skillsMatchRatio = matchingSkills.length / Math.max(jobRequirements.tags.length, 1);
+
+    const skillsMatchRatio =
+      matchingSkills.length / Math.max(jobRequirements.tags.length, 1);
     score += skillsMatchRatio * 30;
-    
+
     return {
       score: Math.max(0, Math.min(100, Math.round(score))),
       reasoning: 'Fallback scoring used due to AI service unavailability',
-      strengths: matchingSkills.length > 0 ? [`Matching skills: ${matchingSkills.join(', ')}`] : ['Profile available'],
+      strengths:
+        matchingSkills.length > 0
+          ? [`Matching skills: ${matchingSkills.join(', ')}`]
+          : ['Profile available'],
       weaknesses: ['AI analysis unavailable'],
-      recommendations: ['Manual review recommended', 'Verify AI service configuration'],
+      recommendations: [
+        'Manual review recommended',
+        'Verify AI service configuration',
+      ],
     };
   }
 }

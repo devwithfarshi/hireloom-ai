@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { S3Service } from 'src/s3/s3.service';
+import * as pdfParse from 'pdf-parse';
 
 @Injectable()
 export class CandidateResumeService {
@@ -58,5 +59,43 @@ export class CandidateResumeService {
     return {
       url,
     };
+  }
+
+  async getResumeContent(candidateUserId: string): Promise<string> {
+    const resume = await this.prisma.candidateResume.findFirst({
+      where: {
+        candidateUserId,
+      },
+    });
+    if (!resume) {
+      throw new NotFoundException('Resume not found');
+    }
+
+    try {
+      // Get the file buffer from S3
+      const fileBuffer = await this.s3Service.getFile(resume.s3Key);
+      
+      // Parse PDF content if it's a PDF file
+      if (resume.fileType === 'application/pdf') {
+        const pdfData = await pdfParse(fileBuffer);
+        
+        // Ensure we have meaningful text content
+        if (!pdfData.text || pdfData.text.trim().length === 0) {
+          throw new Error('PDF contains no readable text content');
+        }
+        
+        return pdfData.text.trim();
+      }
+      
+      // For other file types (like .txt, .docx), attempt to read as text
+      const textContent = fileBuffer.toString('utf-8');
+      if (!textContent || textContent.trim().length === 0) {
+        throw new Error('File contains no readable text content');
+      }
+      
+      return textContent.trim();
+    } catch (error) {
+      throw new Error(`Failed to parse resume content: ${error.message}`);
+    }
   }
 }
