@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { PromptTemplate } from '@langchain/core/prompts';
+import { JsonOutputParser } from '@langchain/core/output_parsers';
 
 export interface JobRequirements {
   title: string;
@@ -27,8 +29,8 @@ export interface ScoringResult {
 @Injectable()
 export class AgentService {
   private readonly logger = new Logger(AgentService.name);
-  private readonly genAI: GoogleGenerativeAI;
-  private readonly model;
+  private readonly model: ChatGoogleGenerativeAI;
+  private readonly jsonParser = new JsonOutputParser();
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
@@ -36,27 +38,39 @@ export class AgentService {
       throw new Error('GEMINI_API_KEY is not configured');
     }
 
-    this.genAI = new GoogleGenerativeAI(apiKey);
-    this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    this.model = new ChatGoogleGenerativeAI({
+      model: 'gemini-2.5-flash',
+      apiKey,
+      temperature: 0.1,
+    });
   }
 
   /**
-   * Scores a candidate against job requirements using Gemini AI
+   * Scores a candidate against job requirements using LangChain with Gemini AI
    */
   async scoreCandidate(
     jobRequirements: JobRequirements,
     candidateProfile: CandidateProfile,
   ): Promise<ScoringResult> {
     try {
-      const prompt = this.buildScoringPrompt(jobRequirements, candidateProfile);
+      const promptTemplate = this.createScoringPromptTemplate();
+      
+      const chain = promptTemplate.pipe(this.model).pipe(this.jsonParser);
+      
+      const result = await chain.invoke({
+        jobTitle: jobRequirements.title,
+        employmentType: jobRequirements.employmentType,
+        requiredExperience: jobRequirements.experience,
+        requiredSkills: jobRequirements.tags.join(', '),
+        jobDescription: jobRequirements.description,
+        candidateExperience: candidateProfile.experience,
+        candidateSkills: candidateProfile.skills.join(', '),
+        resumeContent: candidateProfile.resumeContent || 'No resume content provided',
+      });
 
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-
-      return this.parseScoringResponse(text);
+      return this.validateScoringResult(result);
     } catch (error) {
-      this.logger.error('Failed to score candidate with Gemini AI', {
+      this.logger.error('Failed to score candidate with LangChain', {
         error: error.message,
         jobTitle: jobRequirements.title,
       });
@@ -67,15 +81,15 @@ export class AgentService {
   }
 
   /**
-   * Extracts text content from resume using Gemini AI
+   * Extracts text content from resume using LangChain with Gemini AI
    */
   async extractResumeContent(resumeText: string): Promise<string> {
     try {
-      const prompt = `
+      const promptTemplate = PromptTemplate.fromTemplate(`
 Extract and summarize the key information from this resume in a structured format:
 
 Resume Content:
-${resumeText}
+{resumeText}
 
 Please provide:
 1. Professional summary
@@ -84,45 +98,43 @@ Please provide:
 4. Education background
 5. Notable achievements
 
-Format the response in clear, concise bullet points.`;
+Format the response in clear, concise bullet points.`);
 
-      const result = await this.model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
+      const chain = promptTemplate.pipe(this.model);
+      const result = await chain.invoke({ resumeText });
+      
+      return result.content as string;
     } catch (error) {
       this.logger.error('Failed to extract resume content', error.message);
       return resumeText; // Return original text as fallback
     }
   }
 
-  private buildScoringPrompt(
-    jobRequirements: JobRequirements,
-    candidateProfile: CandidateProfile,
-  ): string {
-    return `
+  private createScoringPromptTemplate(): PromptTemplate {
+    return PromptTemplate.fromTemplate(`
 You are an expert ATS (Applicant Tracking System) that evaluates candidates for job positions. 
 Analyze the candidate against the job requirements and provide a comprehensive scoring.
 
 JOB REQUIREMENTS:
-- Title: ${jobRequirements.title}
-- Employment Type: ${jobRequirements.employmentType}
-- Required Experience: ${jobRequirements.experience} years
-- Required Skills/Tags: ${jobRequirements.tags.join(', ')}
-- Job Description: ${jobRequirements.description}
+- Title: {jobTitle}
+- Employment Type: {employmentType}
+- Required Experience: {requiredExperience} years
+- Required Skills/Tags: {requiredSkills}
+- Job Description: {jobDescription}
 
 CANDIDATE PROFILE:
-- Experience: ${candidateProfile.experience} years
-- Skills: ${candidateProfile.skills.join(', ')}
-${candidateProfile.resumeContent ? `- Resume Content: ${candidateProfile.resumeContent}` : ''}
+- Experience: {candidateExperience} years
+- Skills: {candidateSkills}
+- Resume Content: {resumeContent}
 
 Please provide your analysis in the following JSON format:
-{
+{{
   "score": <number between 0-100>,
   "reasoning": "<detailed explanation of the score>",
   "strengths": ["<strength 1>", "<strength 2>", "<strength 3>"],
   "weaknesses": ["<weakness 1>", "<weakness 2>", "<weakness 3>"],
   "recommendations": ["<recommendation 1>", "<recommendation 2>", "<recommendation 3>"]
-}
+}}
 
 Scoring Criteria:
 - Skills match (30%): How well candidate's skills align with job requirements
@@ -131,32 +143,24 @@ Scoring Criteria:
 - Education and certifications (15%): Academic qualifications
 - Overall fit (10%): Cultural and role-specific fit
 
-Provide only the JSON response, no additional text.`;
+Provide only the JSON response, no additional text.`);
   }
 
-  private parseScoringResponse(response: string): ScoringResult {
+  private validateScoringResult(result: any): ScoringResult {
     try {
-      // Clean the response to extract JSON
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in response');
-      }
-
-      const parsed = JSON.parse(jsonMatch[0]);
-
       return {
-        score: Math.max(0, Math.min(100, parsed.score || 0)),
-        reasoning: parsed.reasoning || 'No reasoning provided',
-        strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
-        weaknesses: Array.isArray(parsed.weaknesses) ? parsed.weaknesses : [],
-        recommendations: Array.isArray(parsed.recommendations)
-          ? parsed.recommendations
+        score: Math.max(0, Math.min(100, result.score || 0)),
+        reasoning: result.reasoning || 'No reasoning provided',
+        strengths: Array.isArray(result.strengths) ? result.strengths : [],
+        weaknesses: Array.isArray(result.weaknesses) ? result.weaknesses : [],
+        recommendations: Array.isArray(result.recommendations)
+          ? result.recommendations
           : [],
       };
     } catch (error) {
-      this.logger.error('Failed to parse Gemini AI response', {
+      this.logger.error('Failed to validate LangChain response', {
         error: error.message,
-        response: response.substring(0, 500),
+        result: JSON.stringify(result).substring(0, 500),
       });
 
       // Return a basic fallback response
