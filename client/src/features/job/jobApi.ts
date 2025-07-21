@@ -146,6 +146,13 @@ export const jobApi = createApi({
       }),
       invalidatesTags: ["Job"],
     }),
+    startScoring: builder.mutation<Job, string>({
+      query: (id) => ({
+        url: `/jobs/${id}/start-scoring`,
+        method: "PATCH",
+      }),
+      invalidatesTags: ["Job"],
+    }),
   }),
 });
 
@@ -156,4 +163,5 @@ export const {
   useCreateJobMutation,
   useUpdateJobMutation,
   useDeleteJobMutation,
+  useStartScoringMutation,
 } = jobApi;

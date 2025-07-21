@@ -1,6 +1,6 @@
 import { RootState } from "@/lib/store";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ApplicationStatus } from "../types";
+import { ApplicationStatus } from "../../types";
 
 export interface Application {
   id: string;

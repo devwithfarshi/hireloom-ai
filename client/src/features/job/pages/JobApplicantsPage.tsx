@@ -39,14 +39,23 @@ import { PDFViewer } from "@/components/ui/pdf-viewer";
 import {
   Application,
   useGetJobApplicationsQuery,
-  useStartScoringMutation,
-} from "@/services/applicationApi";
+  useUpdateApplicationMutation,
+} from "@/features/application/applicationApi";
 import { ApplicationStatus } from "@/types";
-import { ArrowLeftIcon, FileIcon, SparklesIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  FileIcon,
+  SparklesIcon,
+  RefreshCwIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useGetJobByIdQuery, ScoringStatus } from "../jobApi";
+import {
+  useGetJobByIdQuery,
+  ScoringStatus,
+  useStartScoringMutation,
+} from "../jobApi";
 import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
 
 // Component to handle resume viewing
@@ -127,11 +136,17 @@ export function JobApplicantsPage() {
   const { data: job, isLoading: isJobLoading } = useGetJobByIdQuery(id!);
   const [startScoring, { isLoading: isStartScoringLoading }] =
     useStartScoringMutation();
-  const { data: applicationsData, isLoading: isApplicationsLoading } =
-    useGetJobApplicationsQuery(
-      { jobId: id!, page, limit, status },
-      { skip: !id }
-    );
+  const [updateApplication, { isLoading: isUpdatingApplication }] =
+    useUpdateApplicationMutation();
+  const {
+    data: applicationsData,
+    isLoading: isApplicationsLoading,
+    refetch,
+    isFetching,
+  } = useGetJobApplicationsQuery(
+    { jobId: id!, page, limit, status },
+    { skip: !id }
+  );
 
   const handleBack = () => {
     navigate(-1);
@@ -240,6 +255,22 @@ export function JobApplicantsPage() {
       handleApiError(error);
     }
   };
+
+  const handleStatusUpdate = async (
+    applicationId: string,
+    newStatus: ApplicationStatus
+  ) => {
+    try {
+      await updateApplication({
+        id: applicationId,
+        data: { status: newStatus },
+      }).unwrap();
+      toast.success("Application status updated successfully");
+      refetch();
+    } catch (error: any) {
+      handleApiError(error);
+    }
+  };
   if (isJobLoading) {
     return (
       <div className="container mx-auto max-w-4xl py-8">
@@ -266,10 +297,23 @@ export function JobApplicantsPage() {
   return (
     <div className="container mx-auto max-w-4xl py-8">
       <div className="mb-6 flex justify-between">
-        <Button variant="outline" onClick={handleBack}>
-          <ArrowLeftIcon className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleBack}>
+            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2"
+          >
+            <RefreshCwIcon
+              className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
+        </div>
         {job?.scoringStatus === ScoringStatus.PENDING ? (
           <Dialog>
             <DialogTrigger
@@ -337,15 +381,13 @@ export function JobApplicantsPage() {
                   <SelectItem value={ApplicationStatus.PENDING}>
                     Pending
                   </SelectItem>
-                  <SelectItem value={ApplicationStatus.REVIEWING}>
-                    Reviewing
+                  <SelectItem value={ApplicationStatus.REVIEWED}>
+                    Reviewed
                   </SelectItem>
-                  <SelectItem value={ApplicationStatus.INTERVIEW}>
-                    Interview
+                  <SelectItem value={ApplicationStatus.SHORTLISTED}>
+                    Shortlisted
                   </SelectItem>
-                  <SelectItem value={ApplicationStatus.ACCEPTED}>
-                    Accepted
-                  </SelectItem>
+                  <SelectItem value={ApplicationStatus.HIRED}>Hired</SelectItem>
                   <SelectItem value={ApplicationStatus.REJECTED}>
                     Rejected
                   </SelectItem>
@@ -401,12 +443,41 @@ export function JobApplicantsPage() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge
-                            variant={getStatusVariant(application.status)}
-                            className="capitalize"
+                          <Select
+                            value={application.status}
+                            onValueChange={(newStatus: ApplicationStatus) =>
+                              handleStatusUpdate(application.id, newStatus)
+                            }
+                            disabled={isUpdatingApplication}
                           >
-                            {application.status.toLowerCase()}
-                          </Badge>
+                            <SelectTrigger className="w-[140px]">
+                              <SelectValue>
+                                <Badge
+                                  variant={getStatusVariant(application.status)}
+                                  className="capitalize"
+                                >
+                                  {application.status.toLowerCase()}
+                                </Badge>
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={ApplicationStatus.PENDING}>
+                                Pending
+                              </SelectItem>
+                              <SelectItem value={ApplicationStatus.REVIEWED}>
+                                Reviewed
+                              </SelectItem>
+                              <SelectItem value={ApplicationStatus.SHORTLISTED}>
+                                Shortlisted
+                              </SelectItem>
+                              <SelectItem value={ApplicationStatus.HIRED}>
+                                Hired
+                              </SelectItem>
+                              <SelectItem value={ApplicationStatus.REJECTED}>
+                                Rejected
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                           <Button
                             variant="outline"
                             size="sm"
@@ -434,51 +505,73 @@ export function JobApplicantsPage() {
                       {notes && (
                         <div className="mt-4 space-y-3">
                           <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                            <h4 className="text-sm font-semibold text-blue-900 mb-2">AI Assessment</h4>
-                            <p className="text-sm text-blue-800 leading-relaxed">{notes.reasoning}</p>
+                            <h4 className="text-sm font-semibold text-blue-900 mb-2">
+                              AI Assessment
+                            </h4>
+                            <p className="text-sm text-blue-800 leading-relaxed">
+                              {notes.reasoning}
+                            </p>
                           </div>
-                          
+
                           {notes.strengths && notes.strengths.length > 0 && (
                             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                              <h5 className="text-sm font-medium text-green-900 mb-2">Strengths</h5>
+                              <h5 className="text-sm font-medium text-green-900 mb-2">
+                                Strengths
+                              </h5>
                               <ul className="text-sm text-green-800 space-y-1">
                                 {notes.strengths.map((strength, index) => (
                                   <li key={index} className="flex items-start">
-                                    <span className="text-green-600 mr-2">•</span>
+                                    <span className="text-green-600 mr-2">
+                                      •
+                                    </span>
                                     {strength}
                                   </li>
                                 ))}
                               </ul>
                             </div>
                           )}
-                          
+
                           {notes.weaknesses && notes.weaknesses.length > 0 && (
                             <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                              <h5 className="text-sm font-medium text-orange-900 mb-2">Areas for Improvement</h5>
+                              <h5 className="text-sm font-medium text-orange-900 mb-2">
+                                Areas for Improvement
+                              </h5>
                               <ul className="text-sm text-orange-800 space-y-1">
                                 {notes.weaknesses.map((weakness, index) => (
                                   <li key={index} className="flex items-start">
-                                    <span className="text-orange-600 mr-2">•</span>
+                                    <span className="text-orange-600 mr-2">
+                                      •
+                                    </span>
                                     {weakness}
                                   </li>
                                 ))}
                               </ul>
                             </div>
                           )}
-                          
-                          {notes.recommendations && notes.recommendations.length > 0 && (
-                            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                              <h5 className="text-sm font-medium text-purple-900 mb-2">Recommendations</h5>
-                              <ul className="text-sm text-purple-800 space-y-1">
-                                {notes.recommendations.map((recommendation, index) => (
-                                  <li key={index} className="flex items-start">
-                                    <span className="text-purple-600 mr-2">•</span>
-                                    {recommendation}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+
+                          {notes.recommendations &&
+                            notes.recommendations.length > 0 && (
+                              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                <h5 className="text-sm font-medium text-purple-900 mb-2">
+                                  Recommendations
+                                </h5>
+                                <ul className="text-sm text-purple-800 space-y-1">
+                                  {notes.recommendations.map(
+                                    (recommendation, index) => (
+                                      <li
+                                        key={index}
+                                        className="flex items-start"
+                                      >
+                                        <span className="text-purple-600 mr-2">
+                                          •
+                                        </span>
+                                        {recommendation}
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
@@ -537,11 +630,11 @@ function getStatusVariant(
   switch (status) {
     case ApplicationStatus.PENDING:
       return "outline";
-    case ApplicationStatus.REVIEWING:
+    case ApplicationStatus.REVIEWED:
       return "secondary";
-    case ApplicationStatus.INTERVIEW:
+    case ApplicationStatus.SHORTLISTED:
       return "default";
-    case ApplicationStatus.ACCEPTED:
+    case ApplicationStatus.HIRED:
       return "default";
     case ApplicationStatus.REJECTED:
       return "destructive";

@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -181,10 +181,23 @@ export function JobBrowsePage() {
   return (
     <div className="container mx-auto py-8">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Find Your Next Opportunity</h1>
-        <p className="text-muted-foreground mt-1">
-          Browse through available job opportunities
-        </p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Find Your Next Opportunity</h1>
+            <p className="text-muted-foreground mt-1">
+              Browse through available job opportunities
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2"
+          >
+            <RefreshCwIcon className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <Card className="mb-8">

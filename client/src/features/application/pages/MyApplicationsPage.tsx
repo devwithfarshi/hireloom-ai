@@ -16,7 +16,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetMyApplicationsQuery } from "@/services/applicationApi";
+import { useGetMyApplicationsQuery } from "@/features/application/applicationApi";
 import { ApplicationStatus } from "@/types";
 import { EmploymentType } from "@/features/job/jobApi";
 import { BuildingIcon, CalendarIcon, MapPinIcon } from "lucide-react";
@@ -42,14 +42,14 @@ const formatApplicationStatus = (status: ApplicationStatus): string => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return "Pending";
-    case ApplicationStatus.REVIEWING:
-      return "Reviewing";
-    case ApplicationStatus.INTERVIEW:
-      return "Interview";
+    case ApplicationStatus.REVIEWED:
+      return "Reviewed";
+    case ApplicationStatus.SHORTLISTED:
+      return "Shortlisted";
+    case ApplicationStatus.HIRED:
+      return "Hired";
     case ApplicationStatus.REJECTED:
       return "Rejected";
-    case ApplicationStatus.ACCEPTED:
-      return "Accepted";
     default:
       return status;
   }
@@ -59,14 +59,14 @@ const getStatusColor = (status: ApplicationStatus): string => {
   switch (status) {
     case ApplicationStatus.PENDING:
       return "bg-yellow-100 text-yellow-800 hover:bg-yellow-100";
-    case ApplicationStatus.REVIEWING:
+    case ApplicationStatus.REVIEWED:
       return "bg-blue-100 text-blue-800 hover:bg-blue-100";
-    case ApplicationStatus.INTERVIEW:
+    case ApplicationStatus.SHORTLISTED:
       return "bg-purple-100 text-purple-800 hover:bg-purple-100";
+    case ApplicationStatus.HIRED:
+      return "bg-green-100 text-green-800 hover:bg-green-100";
     case ApplicationStatus.REJECTED:
       return "bg-red-100 text-red-800 hover:bg-red-100";
-    case ApplicationStatus.ACCEPTED:
-      return "bg-green-100 text-green-800 hover:bg-green-100";
     default:
       return "";
   }

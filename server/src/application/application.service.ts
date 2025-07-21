@@ -4,7 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Application, ApplicationStatus, Job, Role, ScoringStatus } from '@prisma/client';
+import {
+  Application,
+  ApplicationStatus,
+  Job,
+  Role,
+  ScoringStatus,
+} from '@prisma/client';
 import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import {
@@ -248,8 +254,6 @@ export class ApplicationService {
   }
 
   async update(id: string, data: UpdateApplicationDto): Promise<Application> {
-    await this.findOne(id);
-
     return this.prisma.application.update({
       where: { id },
       data,
@@ -257,8 +261,6 @@ export class ApplicationService {
   }
 
   async remove(id: string): Promise<void> {
-    await this.findOne(id);
-
     await this.prisma.application.delete({
       where: { id },
     });

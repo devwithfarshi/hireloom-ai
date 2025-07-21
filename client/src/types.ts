@@ -1,11 +1,11 @@
-import { Role } from './features/auth/types';
+import { Role } from "./features/auth/types";
 
 export { Role };
 
 export enum ApplicationStatus {
-  PENDING = 'PENDING',
-  REVIEWING = 'REVIEWING',
-  INTERVIEW = 'INTERVIEW',
-  REJECTED = 'REJECTED',
-  ACCEPTED = 'ACCEPTED',
+  PENDING = "PENDING",
+  REVIEWED = "REVIEWED",
+  SHORTLISTED = "SHORTLISTED",
+  REJECTED = "REJECTED",
+  HIRED = "HIRED",
 }

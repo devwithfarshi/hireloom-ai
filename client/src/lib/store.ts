@@ -7,7 +7,7 @@ import { candidateProfileApi } from "../features/profile/candidateProfileApi";
 import { userApi } from "../features/profile/userApi";
 import { resumeApi } from "../features/profile/resumeApi";
 import { jobApi } from "../features/job/jobApi";
-import { applicationApi } from "../services/applicationApi";
+import { applicationApi } from "../features/application/applicationApi";
 
 const resetApiOnLogout =
   (api: { dispatch: (action: any) => void }) =>

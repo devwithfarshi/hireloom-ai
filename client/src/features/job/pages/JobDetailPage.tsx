@@ -23,7 +23,7 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { EmploymentType, useGetJobByIdQuery } from "../jobApi";
-import { useCreateApplicationMutation } from "@/services/applicationApi";
+import { useCreateApplicationMutation } from "@/features/application/applicationApi";
 
 const formatEmploymentType = (type: EmploymentType): string => {
   switch (type) {
