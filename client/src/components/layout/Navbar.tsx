@@ -7,7 +7,8 @@ import { useAuth } from "@/features/auth/hooks";
 import { Role } from "@/features/auth/types";
 import { toggleChatbot } from "@/features/chatbot/chatbotSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
-import { MessageSquare, SparklesIcon } from "lucide-react";
+import { Menu, MessageSquare, SparklesIcon, X } from "lucide-react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -16,6 +17,11 @@ export function Navbar() {
   const dispatch = useAppDispatch();
   const { isOpen: isChatbotOpen } = useAppSelector((state) => state.chatbot);
   const [logoutApi, { isLoading }] = useLogoutMutation();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   const handleLogout = async () => {
     try {
@@ -33,17 +39,23 @@ export function Navbar() {
 
   return (
     <nav className="border-b bg-white shadow-sm dark:bg-gray-800">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-4">
-          <Link to="/" className="flex items-center">
-            <img
-              src="/logo/logo-icon.png"
-              alt="HireLoom AI Logo"
-              className="w-10 aspect-square bg-blend-color-burn"
-            />
-            <p className="text-xl font-bold">HireLoom AI</p>
-          </Link>
-          <div className="hidden md:flex md:space-x-4">
+      <div className="container mx-auto px-3 sm:px-4">
+        <div className="flex h-14 sm:h-16 items-center justify-between">
+          {/* Logo and Brand */}
+          <div className="flex items-center">
+            <Link to="/" className="flex items-center space-x-2">
+              <img
+                src="/logo/logo-icon.png"
+                alt="HireLoom AI Logo"
+                className="w-8 sm:w-10 aspect-square bg-blend-color-burn"
+              />
+              <p className="text-lg sm:text-xl font-bold hidden xs:block">HireLoom AI</p>
+              <p className="text-lg sm:text-xl font-bold xs:hidden">HL</p>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex lg:space-x-4">
             <Link
               to="/"
               className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -81,57 +93,180 @@ export function Navbar() {
               </Link>
             )}
           </div>
-        </div>
-        <div className="flex items-center space-x-4">
-          {/* AI Assistant Toggle */}
-          {(user?.role === Role.RECRUITER ||
-            user?.role === Role.SUPER_ADMIN) && (
+
+          {/* Right side - Desktop */}
+          <div className="hidden sm:flex items-center space-x-2 lg:space-x-4">
+            {/* AI Assistant Toggle */}
+            {(user?.role === Role.RECRUITER ||
+              user?.role === Role.SUPER_ADMIN) && (
+              <Button
+                onClick={handleChatbotToggle}
+                variant={isChatbotOpen ? "default" : "outline"}
+                size="sm"
+                className={`relative text-xs sm:text-sm ${
+                  isChatbotOpen
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                    : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
+                }`}
+              >
+                <SparklesIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline ml-1">Ask Loo</span>
+                {isChatbotOpen && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
+                )}
+              </Button>
+            )}
+
             <Button
-              onClick={handleChatbotToggle}
-              variant={isChatbotOpen ? "default" : "outline"}
+              onClick={handleLogout}
+              disabled={isLoading}
+              variant="destructive"
               size="sm"
-              className={`relative ${
-                isChatbotOpen
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-                  : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
-              }`}
+              className="text-xs sm:text-sm"
             >
-              <SparklesIcon className="h-4 w-4" />
-              Ask Loo
-              {isChatbotOpen && (
-                <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
+              {isLoading ? <Spinner size="sm" className="mr-1 sm:mr-2" /> : null}
+              {isLoading ? "Logging out..." : "Logout"}
+            </Button>
+            
+            {user && (
+              <div className="hidden lg:block">
+                <span className="text-sm font-medium">
+                  {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                    user.email}
+                </span>
+              </div>
+            )}
+            
+            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+              <AvatarFallback>
+                <span className="text-xs sm:text-sm font-medium">
+                  {[user?.firstName, user?.lastName]
+                    .filter(Boolean)
+                    .join(" ")
+                    .charAt(0)}
+                </span>
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          {/* Mobile menu button and essential items */}
+          <div className="flex sm:hidden items-center space-x-2">
+            {/* AI Assistant Toggle - Mobile */}
+            {(user?.role === Role.RECRUITER ||
+              user?.role === Role.SUPER_ADMIN) && (
+              <Button
+                onClick={handleChatbotToggle}
+                variant={isChatbotOpen ? "default" : "outline"}
+                size="sm"
+                className={`relative h-8 w-8 p-0 ${
+                  isChatbotOpen
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
+                    : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
+                }`}
+              >
+                <SparklesIcon className="h-4 w-4" />
+                {isChatbotOpen && (
+                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
+                )}
+              </Button>
+            )}
+            
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>
+                <span className="text-xs font-medium">
+                  {[user?.firstName, user?.lastName]
+                    .filter(Boolean)
+                    .join(" ")
+                    .charAt(0)}
+                </span>
+              </AvatarFallback>
+            </Avatar>
+            
+            <Button
+              onClick={toggleMobileMenu}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
               )}
             </Button>
-          )}
-
-          <Button
-            onClick={handleLogout}
-            disabled={isLoading}
-            variant="destructive"
-            size="sm"
-          >
-            {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
-            {isLoading ? "Logging out..." : "Logout"}
-          </Button>
-          {user && (
-            <div className="hidden md:block">
-              <span className="text-sm font-medium">
-                {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
-                  user.email}
-              </span>
-            </div>
-          )}
-          <Avatar>
-            <AvatarFallback>
-              <span className="text-sm font-medium">
-                {[user?.firstName, user?.lastName]
-                  .filter(Boolean)
-                  .join(" ")
-                  .charAt(0)}
-              </span>
-            </AvatarFallback>
-          </Avatar>
+          </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="sm:hidden border-t border-gray-200 dark:border-gray-700 py-3">
+            <div className="flex flex-col space-y-2">
+              <Link
+                to="/"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/profile"
+                className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              {user?.role === Role.CANDIDATE && (
+                <Link
+                  to="/jobs"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Browse Jobs
+                </Link>
+              )}
+              {user?.role === Role.CANDIDATE && (
+                <Link
+                  to="/my-applications"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My Applications
+                </Link>
+              )}
+              {user?.role === Role.RECRUITER && (
+                <Link
+                  to="/dashboard/jobs"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Manage Jobs
+                </Link>
+              )}
+              
+              {/* User info and logout in mobile menu */}
+              {user && (
+                <div className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-2 pt-3">
+                  {[user.firstName, user.lastName].filter(Boolean).join(" ") ||
+                    user.email}
+                </div>
+              )}
+              
+              <Button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                disabled={isLoading}
+                variant="destructive"
+                size="sm"
+                className="mx-3 text-xs"
+              >
+                {isLoading ? <Spinner size="sm" className="mr-2" /> : null}
+                {isLoading ? "Logging out..." : "Logout"}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

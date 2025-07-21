@@ -201,12 +201,12 @@ export function JobBrowsePage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-6">
-        <div className="flex justify-between items-center">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Find Your Next Opportunity</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold">Find Your Next Opportunity</h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Browse through available job opportunities
             </p>
           </div>
@@ -214,7 +214,7 @@ export function JobBrowsePage() {
             variant="outline"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-fit"
           >
             <RefreshCwIcon
               className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
@@ -224,12 +224,12 @@ export function JobBrowsePage() {
         </div>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <div className="flex justify-between items-center">
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle>Search Jobs</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-lg sm:text-xl">Search Jobs</CardTitle>
+              <CardDescription className="text-sm">
                 {isAiMode
                   ? "Use AI to find your perfect job match"
                   : "Filter jobs by title, location, and employment type"}
@@ -239,18 +239,19 @@ export function JobBrowsePage() {
               variant={isAiMode ? "default" : "outline"}
               onClick={handleAiToggle}
               disabled={isTransitioning}
-              className={`flex items-center gap-2 transition-all duration-300 transform hover:scale-105 ${
+              className={`flex items-center gap-2 transition-all duration-300 transform hover:scale-105 self-start sm:self-auto text-sm sm:text-base ${
                 isAiMode
                   ? "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 shadow-lg"
                   : "hover:border-blue-400 hover:text-blue-600"
               }`}
             >
               <SparklesIcon
-                className={`h-4 w-4 transition-all duration-300 ${
+                className={`h-3 w-3 sm:h-4 sm:w-4 transition-all duration-300 ${
                   isAiMode ? "animate-pulse text-white" : "text-current"
                 } ${isTransitioning ? "animate-spin" : ""}`}
               />
-              {isTransitioning ? "Switching..." : "Job Search with AI"}
+              <span className="hidden sm:inline">{isTransitioning ? "Switching..." : "Job Search with AI"}</span>
+              <span className="sm:hidden">{isTransitioning ? "Switching..." : "AI Search"}</span>
             </Button>
           </div>
         </CardHeader>
@@ -294,24 +295,24 @@ export function JobBrowsePage() {
                     style={{ animationDelay: "1s" }}
                   ></div>
 
-                  <div className="relative p-6 border-2 border-dashed border-blue-200 rounded-lg bg-gradient-to-r from-blue-50/50 to-purple-50/50 backdrop-blur-sm">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="relative p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full">
-                        <SparklesIcon className="h-5 w-5 text-white animate-pulse" />
+                  <div className="relative p-4 sm:p-6 border-2 border-dashed border-blue-200 rounded-lg bg-gradient-to-r from-blue-50/50 to-purple-50/50 backdrop-blur-sm">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+                      <div className="relative p-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full self-start">
+                        <SparklesIcon className="h-4 w-4 sm:h-5 sm:w-5 text-white animate-pulse" />
                         {/* Pulsing ring effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-ping opacity-20"></div>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
+                        <h3 className="font-semibold text-base sm:text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent animate-pulse">
                           AI-Powered Job Search
                         </h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs sm:text-sm text-muted-foreground">
                           Describe your ideal job and let AI find the perfect
                           matches
                         </p>
                       </div>
                       {/* Floating sparkles */}
-                      <div className="relative">
+                      <div className="relative hidden sm:block">
                         {[...Array(3)].map((_, i) => (
                           <SparklesIcon
                             key={i}
@@ -328,19 +329,19 @@ export function JobBrowsePage() {
                     </div>
 
                     <div className="relative group">
-                      <SparklesIcon className="absolute left-4 top-4 h-5 w-5 text-blue-500 animate-pulse z-10" />
+                      <SparklesIcon className="absolute left-3 sm:left-4 top-3 sm:top-4 h-4 w-4 sm:h-5 sm:w-5 text-blue-500 animate-pulse z-10" />
                       {/* Typing indicator when empty */}
                       {!aiQuery && (
-                        <div className="absolute left-12 top-4 flex items-center space-x-1">
-                          <div className="w-1 h-4 bg-blue-400 animate-pulse"></div>
-                          <span className="text-blue-400 text-sm animate-pulse">
+                        <div className="absolute left-10 sm:left-12 top-3 sm:top-4 flex items-center space-x-1">
+                          <div className="w-1 h-3 sm:h-4 bg-blue-400 animate-pulse"></div>
+                          <span className="text-blue-400 text-xs sm:text-sm animate-pulse">
                             AI is ready to help...
                           </span>
                         </div>
                       )}
                       <textarea
                         placeholder="Tell me about your dream job... (e.g., 'I'm looking for a remote frontend developer position with React and TypeScript, preferably at a startup with good work-life balance')"
-                        className="w-full min-h-[120px] pl-12 pr-4 py-4 border-2 border-blue-200 rounded-lg resize-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-300 bg-white/80 backdrop-blur-sm group-hover:shadow-lg focus:shadow-xl"
+                        className="w-full min-h-[100px] sm:min-h-[120px] pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 border-2 border-blue-200 rounded-lg resize-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all duration-300 bg-white/80 backdrop-blur-sm group-hover:shadow-lg focus:shadow-xl text-sm sm:text-base"
                         value={aiQuery}
                         onChange={(e) => setAiQuery(e.target.value)}
                       />
@@ -349,12 +350,13 @@ export function JobBrowsePage() {
                     </div>
 
                     <div className="mt-4 flex justify-end">
-                      <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                      <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base">
                         <SparklesIcon
-                          className="h-4 w-4 animate-spin"
+                          className="h-3 w-3 sm:h-4 sm:w-4 animate-spin mr-2"
                           style={{ animationDuration: "3s" }}
                         />
-                        Search with AI
+                        <span className="hidden sm:inline">Search with AI</span>
+                        <span className="sm:hidden">AI Search</span>
                       </Button>
                     </div>
                   </div>
@@ -368,7 +370,7 @@ export function JobBrowsePage() {
                     : "translate-y-8 opacity-0 scale-95"
                 }`}
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <div>
                     <label
                       htmlFor="search"
@@ -381,7 +383,7 @@ export function JobBrowsePage() {
                       <Input
                         id="search"
                         placeholder="Search by job title"
-                        className="pl-9"
+                        className="pl-9 text-sm sm:text-base"
                         value={inputValues.search}
                         onChange={(e) => {
                           setSearch(e.target.value);
@@ -401,6 +403,7 @@ export function JobBrowsePage() {
                     <Input
                       id="location"
                       placeholder="Enter location"
+                      className="text-sm sm:text-base"
                       value={inputValues.location}
                       onChange={(e) => {
                         setLocation(e.target.value);
@@ -409,7 +412,7 @@ export function JobBrowsePage() {
                     />
                   </div>
 
-                  <div>
+                  <div className="sm:col-span-2 lg:col-span-1">
                     <label
                       htmlFor="employmentType"
                       className="text-sm font-medium mb-1 block"
@@ -423,7 +426,7 @@ export function JobBrowsePage() {
                         setCurrentPage(1); // Reset to first page on type change
                       }}
                     >
-                      <SelectTrigger id="employmentType" className="w-full">
+                      <SelectTrigger id="employmentType" className="w-full text-sm sm:text-base">
                         <SelectValue placeholder="All types" />
                       </SelectTrigger>
                       <SelectContent>
@@ -472,20 +475,22 @@ export function JobBrowsePage() {
       </Card>
 
       {isLoading || isFetching ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Loading jobs...</p>
+        <div className="text-center py-6 sm:py-8">
+          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
         </div>
       ) : (
         <>
-          <JobList
-            jobs={jobsData?.data || []}
-            onEdit={handleEditJob}
-            onDelete={handleDeleteJob}
-          />
+          <div className="space-y-4 sm:space-y-6">
+            <JobList
+              jobs={jobsData?.data || []}
+              onEdit={handleEditJob}
+              onDelete={handleDeleteJob}
+            />
+          </div>
 
           {jobsData && jobsData.data.length === 0 && (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground mb-4">
+            <div className="text-center py-6 sm:py-8">
+              <p className="text-muted-foreground mb-4 text-sm sm:text-base px-4">
                 No job postings found matching your criteria
               </p>
               <Button
@@ -494,6 +499,7 @@ export function JobBrowsePage() {
                   setCurrentPage(1);
                 }}
                 variant="outline"
+                className="text-sm sm:text-base"
               >
                 Clear filters
               </Button>
@@ -501,9 +507,9 @@ export function JobBrowsePage() {
           )}
 
           {jobsData && jobsData.data.length > 0 && totalPages > 1 && (
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 sm:mt-8 flex justify-center">
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="gap-1 sm:gap-2">
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => {
@@ -511,11 +517,11 @@ export function JobBrowsePage() {
                           handlePageChange(currentPage - 1);
                         }
                       }}
-                      className={
+                      className={`text-xs sm:text-sm ${
                         currentPage === 1
                           ? "pointer-events-none opacity-50"
                           : ""
-                      }
+                      }`}
                     />
                   </PaginationItem>
 
@@ -528,11 +534,11 @@ export function JobBrowsePage() {
                           handlePageChange(currentPage + 1);
                         }
                       }}
-                      className={
+                      className={`text-xs sm:text-sm ${
                         currentPage === totalPages
                           ? "pointer-events-none opacity-50"
                           : ""
-                      }
+                      }`}
                     />
                   </PaginationItem>
                 </PaginationContent>

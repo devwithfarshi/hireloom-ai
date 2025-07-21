@@ -295,23 +295,30 @@ export function JobApplicantsPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl py-8">
-      <div className="mb-6 flex justify-between">
+    <div className="container mx-auto max-w-4xl px-2 sm:px-4 py-4 sm:py-8">
+      <div className="mb-4 sm:mb-6 flex justify-between gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleBack}>
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
-            Back
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            size="sm"
+            className="sm:size-default"
+          >
+            <ArrowLeftIcon className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline">Back</span>
+            <span className="sm:hidden">Back</span>
           </Button>
           <Button
             variant="outline"
             onClick={() => refetch()}
             disabled={isFetching}
-            className="flex items-center gap-2"
+            size="sm"
+            className="flex items-center gap-1 sm:gap-2 sm:size-default"
           >
             <RefreshCwIcon
-              className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
+              className={`h-3 w-3 sm:h-4 sm:w-4 ${isFetching ? "animate-spin" : ""}`}
             />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </Button>
         </div>
         {job?.scoringStatus === ScoringStatus.PENDING ? (
@@ -324,14 +331,19 @@ export function JobApplicantsPage() {
             >
               <Button
                 variant="outline"
-                className=" py-3 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white"
+                className="py-2 sm:py-3 px-3 sm:px-4 font-semibold transition-all duration-200 hover:scale-105 hover:shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-0 hover:text-white text-sm sm:text-base"
                 disabled={
                   job?.scoringStatus !== ScoringStatus.PENDING ||
                   isStartScoringLoading
                 }
               >
-                <SparklesIcon className="h-4 w-4" />
-                {isStartScoringLoading ? "Loading..." : "Start Scoring"}
+                <SparklesIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {isStartScoringLoading ? "Loading..." : "Start Scoring"}
+                </span>
+                <span className="sm:hidden">
+                  {isStartScoringLoading ? "Loading..." : "Score"}
+                </span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -361,19 +373,19 @@ export function JobApplicantsPage() {
         )}
       </div>
       <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
+        <CardHeader className="pb-4 sm:pb-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <div>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-lg sm:text-2xl">
                 Applicants for {job?.title}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm sm:text-base">
                 Review and manage candidates who applied for this position
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 self-start sm:self-auto">
               <Select value={status || ""} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[140px] sm:w-[180px] text-sm sm:text-base">
                   <SelectValue placeholder="Filter by status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -396,23 +408,23 @@ export function JobApplicantsPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {isApplicationsLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {Array(3)
                 .fill(0)
                 .map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full" />
+                  <Skeleton key={i} className="h-20 sm:h-24 w-full" />
                 ))}
             </div>
           ) : applicationsData?.data.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
+            <div className="text-center py-6 sm:py-8">
+              <p className="text-muted-foreground text-sm sm:text-base px-4">
                 No applications found for this job.
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {applicationsData?.data.map((application: Application) => {
                 const notes = application.notes
                   ? (JSON.parse(application.notes) as {
@@ -425,24 +437,26 @@ export function JobApplicantsPage() {
                   : null;
                 return (
                   <Card key={application.id} className="overflow-hidden">
-                    <div className="p-6">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-lg flex items-center gap-2">
-                            {application.candidate?.user?.firstName}{" "}
-                            {application.candidate?.user?.lastName}
+                    <div className="p-4 sm:p-6">
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-base sm:text-lg flex flex-col sm:flex-row sm:items-center gap-2">
+                            <span>
+                              {application.candidate?.user?.firstName}{" "}
+                              {application.candidate?.user?.lastName}
+                            </span>
                             {application.score !== undefined &&
                               application.score !== null && (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-600 text-white w-fit">
                                   Score: {application.score.toFixed(1)}
                                 </span>
                               )}
                           </h3>
-                          <p className="text-sm text-muted-foreground">
+                          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
                             {application.candidate?.user?.email}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                           <Select
                             value={application.status}
                             onValueChange={(newStatus: ApplicationStatus) =>
@@ -450,11 +464,11 @@ export function JobApplicantsPage() {
                             }
                             disabled={isUpdatingApplication}
                           >
-                            <SelectTrigger className="w-[140px]">
+                            <SelectTrigger className="w-full sm:w-[140px] text-sm">
                               <SelectValue>
                                 <Badge
                                   variant={getStatusVariant(application.status)}
-                                  className="capitalize"
+                                  className="capitalize text-xs"
                                 >
                                   {application.status.toLowerCase()}
                                 </Badge>
@@ -484,47 +498,57 @@ export function JobApplicantsPage() {
                             onClick={() =>
                               navigate(`/applications/${application.id}`)
                             }
+                            className="w-full sm:w-auto text-xs sm:text-sm"
                           >
-                            View Details
+                            <span className="hidden sm:inline">
+                              View Details
+                            </span>
+                            <span className="sm:hidden">Details</span>
                           </Button>
                         </div>
                       </div>
 
-                      <div className="mt-4 flex flex-wrap gap-4">
+                      <div className="mt-3 sm:mt-4 flex flex-wrap gap-2">
                         {application.candidate?.skills?.map((skill) => (
-                          <Badge key={skill} variant="outline">
+                          <Badge
+                            key={skill}
+                            variant="outline"
+                            className="text-xs"
+                          >
                             {skill}
                           </Badge>
                         ))}
                       </div>
 
-                      <ResumeViewLink
-                        candidateUserId={application.candidate?.user?.id}
-                      />
+                      <div className="mt-3 sm:mt-4">
+                        <ResumeViewLink
+                          candidateUserId={application.candidate?.user?.id}
+                        />
+                      </div>
 
                       {notes && (
-                        <div className="mt-4 space-y-3">
-                          <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                            <h4 className="text-sm font-semibold text-blue-900 mb-2">
+                        <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3">
+                          <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                            <h4 className="text-xs sm:text-sm font-semibold text-blue-900 mb-2">
                               AI Assessment
                             </h4>
-                            <p className="text-sm text-blue-800 leading-relaxed">
+                            <p className="text-xs sm:text-sm text-blue-800 leading-relaxed">
                               {notes.reasoning}
                             </p>
                           </div>
 
                           {notes.strengths && notes.strengths.length > 0 && (
-                            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                              <h5 className="text-sm font-medium text-green-900 mb-2">
+                            <div className="p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
+                              <h5 className="text-xs sm:text-sm font-medium text-green-900 mb-2">
                                 Strengths
                               </h5>
-                              <ul className="text-sm text-green-800 space-y-1">
+                              <ul className="text-xs sm:text-sm text-green-800 space-y-1">
                                 {notes.strengths.map((strength, index) => (
                                   <li key={index} className="flex items-start">
-                                    <span className="text-green-600 mr-2">
+                                    <span className="text-green-600 mr-2 text-xs">
                                       •
                                     </span>
-                                    {strength}
+                                    <span className="flex-1">{strength}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -532,17 +556,17 @@ export function JobApplicantsPage() {
                           )}
 
                           {notes.weaknesses && notes.weaknesses.length > 0 && (
-                            <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                              <h5 className="text-sm font-medium text-orange-900 mb-2">
+                            <div className="p-2 sm:p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                              <h5 className="text-xs sm:text-sm font-medium text-orange-900 mb-2">
                                 Areas for Improvement
                               </h5>
-                              <ul className="text-sm text-orange-800 space-y-1">
+                              <ul className="text-xs sm:text-sm text-orange-800 space-y-1">
                                 {notes.weaknesses.map((weakness, index) => (
                                   <li key={index} className="flex items-start">
-                                    <span className="text-orange-600 mr-2">
+                                    <span className="text-orange-600 mr-2 text-xs">
                                       •
                                     </span>
-                                    {weakness}
+                                    <span className="flex-1">{weakness}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -551,21 +575,23 @@ export function JobApplicantsPage() {
 
                           {notes.recommendations &&
                             notes.recommendations.length > 0 && (
-                              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-                                <h5 className="text-sm font-medium text-purple-900 mb-2">
+                              <div className="p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                <h5 className="text-xs sm:text-sm font-medium text-purple-900 mb-2">
                                   Recommendations
                                 </h5>
-                                <ul className="text-sm text-purple-800 space-y-1">
+                                <ul className="text-xs sm:text-sm text-purple-800 space-y-1">
                                   {notes.recommendations.map(
                                     (recommendation, index) => (
                                       <li
                                         key={index}
                                         className="flex items-start"
                                       >
-                                        <span className="text-purple-600 mr-2">
+                                        <span className="text-purple-600 mr-2 text-xs">
                                           •
                                         </span>
-                                        {recommendation}
+                                        <span className="flex-1">
+                                          {recommendation}
+                                        </span>
                                       </li>
                                     )
                                   )}
@@ -582,9 +608,9 @@ export function JobApplicantsPage() {
           )}
 
           {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
+            <div className="mt-4 sm:mt-6 flex justify-center">
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="gap-1 sm:gap-2">
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() => {
@@ -592,9 +618,9 @@ export function JobApplicantsPage() {
                           handlePageChange(page - 1);
                         }
                       }}
-                      className={
+                      className={`text-xs sm:text-sm ${
                         page === 1 ? "pointer-events-none opacity-50" : ""
-                      }
+                      }`}
                     />
                   </PaginationItem>
 
@@ -607,11 +633,11 @@ export function JobApplicantsPage() {
                           handlePageChange(page + 1);
                         }
                       }}
-                      className={
+                      className={`text-xs sm:text-sm ${
                         page === totalPages
                           ? "pointer-events-none opacity-50"
                           : ""
-                      }
+                      }`}
                     />
                   </PaginationItem>
                 </PaginationContent>

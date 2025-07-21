@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusIcon, SearchIcon } from "lucide-react";
+import { PlusIcon, RefreshCwIcon, SearchIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -67,31 +67,48 @@ export function JobDashboardPage() {
     }
   };
 
+  const handleRefresh = () => {
+    refetch();
+    toast.success("Jobs refreshed");
+  };
+
   return (
-    <div className="container mx-auto py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Job Postings</h1>
-          <p className="text-muted-foreground mt-1">
+    <div className="container mx-auto py-4 px-4 sm:py-6 md:py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4">
+        <div className="w-full sm:w-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold">Job Postings</h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
             Manage your company's job postings
           </p>
         </div>
-        <Button onClick={handleCreateJob}>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Create Job
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <Button 
+            onClick={handleRefresh} 
+            variant="outline" 
+            size="sm" 
+            className="flex-1 sm:flex-none"
+          >
+            <RefreshCwIcon className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Refresh</span>
+          </Button>
+          <Button onClick={handleCreateJob} className="flex-1 sm:flex-none">
+            <PlusIcon className="mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Create Job</span>
+            <span className="sm:hidden">Create</span>
+          </Button>
+        </div>
       </div>
 
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="pb-4 sm:pb-6">
+          <CardTitle className="text-lg sm:text-xl">Filters</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Filter job postings by title, employment type, and status
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="sm:col-span-2 lg:col-span-1">
               <label
                 htmlFor="search"
                 className="text-sm font-medium mb-1 block"
@@ -103,7 +120,7 @@ export function JobDashboardPage() {
                 <Input
                   id="search"
                   placeholder="Search by title"
-                  className="pl-9"
+                  className="pl-9 text-sm sm:text-base"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -123,7 +140,7 @@ export function JobDashboardPage() {
                   setEmploymentTypeFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="employmentType" className="w-full">
+                <SelectTrigger id="employmentType" className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,7 +174,7 @@ export function JobDashboardPage() {
                   setActiveFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="status" className="w-full">
+                <SelectTrigger id="status" className="w-full text-sm sm:text-base">
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -169,7 +186,7 @@ export function JobDashboardPage() {
             </div>
           </div>
           
-          <div className="mt-4 flex items-center">
+          <div className="mt-3 sm:mt-4 flex items-center">
             <label htmlFor="isRemote" className="flex items-center cursor-pointer">
               <input
                 id="isRemote"
@@ -193,8 +210,8 @@ export function JobDashboardPage() {
       </Card>
 
       {isLoading ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Loading jobs...</p>
+        <div className="text-center py-6 sm:py-8">
+          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
         </div>
       ) : (
         <JobList
@@ -206,9 +223,13 @@ export function JobDashboardPage() {
       )}
 
       {jobsData && jobsData.data.length === 0 && (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">No job postings found</p>
-          <Button onClick={handleCreateJob} variant="outline">
+        <div className="text-center py-6 sm:py-8 px-4">
+          <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">No job postings found</p>
+          <Button 
+            onClick={handleCreateJob} 
+            variant="outline"
+            className="w-full sm:w-auto text-sm sm:text-base"
+          >
             Create your first job posting
           </Button>
         </div>
