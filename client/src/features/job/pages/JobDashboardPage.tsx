@@ -31,7 +31,9 @@ export function JobDashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [employmentTypeFilter, setEmploymentTypeFilter] = useState<string>("");
   const [activeFilter, setActiveFilter] = useState<string>("");
-  const [isRemoteFilter, setIsRemoteFilter] = useState<boolean | undefined>(undefined);
+  const [isRemoteFilter, setIsRemoteFilter] = useState<boolean | undefined>(
+    undefined
+  );
 
   const {
     data: jobsData,
@@ -82,10 +84,10 @@ export function JobDashboardPage() {
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
-          <Button 
-            onClick={handleRefresh} 
-            variant="outline" 
-            size="sm" 
+          <Button
+            onClick={handleRefresh}
+            variant="outline"
+            size="sm"
             className="flex-1 sm:flex-none"
           >
             <RefreshCwIcon className="mr-2 h-4 w-4" />
@@ -140,7 +142,10 @@ export function JobDashboardPage() {
                   setEmploymentTypeFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="employmentType" className="w-full text-sm sm:text-base">
+                <SelectTrigger
+                  id="employmentType"
+                  className="w-full text-sm sm:text-base"
+                >
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -174,7 +179,10 @@ export function JobDashboardPage() {
                   setActiveFilter(value === "all" ? "" : value)
                 }
               >
-                <SelectTrigger id="status" className="w-full text-sm sm:text-base">
+                <SelectTrigger
+                  id="status"
+                  className="w-full text-sm sm:text-base"
+                >
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,9 +193,12 @@ export function JobDashboardPage() {
               </Select>
             </div>
           </div>
-          
+
           <div className="mt-3 sm:mt-4 flex items-center">
-            <label htmlFor="isRemote" className="flex items-center cursor-pointer">
+            <label
+              htmlFor="isRemote"
+              className="flex items-center cursor-pointer"
+            >
               <input
                 id="isRemote"
                 type="checkbox"
@@ -211,7 +222,9 @@ export function JobDashboardPage() {
 
       {isLoading ? (
         <div className="text-center py-6 sm:py-8">
-          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Loading jobs...
+          </p>
         </div>
       ) : (
         <JobList
@@ -224,9 +237,11 @@ export function JobDashboardPage() {
 
       {jobsData && jobsData.data.length === 0 && (
         <div className="text-center py-6 sm:py-8 px-4">
-          <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">No job postings found</p>
-          <Button 
-            onClick={handleCreateJob} 
+          <p className="text-muted-foreground mb-3 sm:mb-4 text-sm sm:text-base">
+            No job postings found
+          </p>
+          <Button
+            onClick={handleCreateJob}
             variant="outline"
             className="w-full sm:w-auto text-sm sm:text-base"
           >

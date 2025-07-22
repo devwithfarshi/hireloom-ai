@@ -1,12 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateJobDto, GetJobsDto, UpdateJobDto } from './dto/job.dto';
+import { AgentService } from 'src/agent/agent.service';
+import { CandidateResumeService } from 'src/candidate-resume/candidate-resume.service';
+import {
+  AiJobSearchDto,
+  CreateJobDto,
+  GetJobsDto,
+  UpdateJobDto,
+} from './dto/job.dto';
 import { Job, User } from '@prisma/client';
 
 @Injectable()
 export class JobService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private agentService: AgentService,
+    private candidateResumeService: CandidateResumeService,
+  ) {}
 
   async findAll(query: GetJobsDto): Promise<PaginatedResult<Job>> {
     const { limit, page, search, location, employmentType, active, isRemote } =
@@ -131,5 +142,51 @@ export class JobService {
     return this.prisma.job.delete({
       where: { id },
     });
+  }
+  async aiSearch(userId: string, body: AiJobSearchDto) {
+    // Get candidate profile
+    const candidateProfile = await this.prisma.candidateProfile.findUnique({
+      where: {
+        candidateUserId: userId,
+      },
+      include: {
+        CandidateResume: true,
+      },
+    });
+
+    if (!candidateProfile) {
+      throw new NotFoundException('Candidate profile not found');
+    }
+
+    // Get actual resume content
+    let resumeContent = 'No resume uploaded';
+    if (
+      candidateProfile.CandidateResume &&
+      Object.keys(candidateProfile.CandidateResume).length > 0
+    ) {
+      try {
+        resumeContent =
+          await this.candidateResumeService.getResumeContent(userId);
+      } catch (error) {
+        // Fallback if resume parsing fails
+        resumeContent = 'Resume uploaded but could not be parsed';
+      }
+    }
+
+    // Prepare candidate profile for AI search
+    const profileForSearch = {
+      experience: candidateProfile.experience,
+      skills: candidateProfile.skills,
+      resumeContent,
+    };
+
+    // Perform AI search using injected AgentService
+    return this.agentService.aiSearchJobs(
+      {
+        query: body.query,
+        profile: profileForSearch,
+      },
+      this.prisma,
+    );
   }
 }

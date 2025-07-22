@@ -40,7 +40,7 @@ export class GetJobsDto {
   @IsBoolean()
   @Type(() => Boolean)
   active?: boolean;
-  
+
   @IsOptional()
   @IsBoolean()
   @Type(() => Boolean)
@@ -77,7 +77,7 @@ export class CreateJobDto {
   @IsBoolean()
   @IsOptional()
   active?: boolean;
-  
+
   @IsBoolean()
   @IsOptional()
   isRemote?: boolean;
@@ -112,9 +112,16 @@ export class UpdateJobDto {
 
   @IsOptional()
   @IsBoolean()
+  @IsBoolean()
   active?: boolean;
-  
+
   @IsOptional()
   @IsBoolean()
   isRemote?: boolean;
+}
+
+export class AiJobSearchDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Query is required' })
+  query: string;
 }

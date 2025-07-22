@@ -153,6 +153,13 @@ export const jobApi = createApi({
       }),
       invalidatesTags: ["Job"],
     }),
+    aiSearchJobs: builder.mutation<any, { query: string }>({
+      query: (data) => ({
+        url: "/jobs/ai-search",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -164,4 +171,5 @@ export const {
   useUpdateJobMutation,
   useDeleteJobMutation,
   useStartScoringMutation,
+  useAiSearchJobsMutation,
 } = jobApi;

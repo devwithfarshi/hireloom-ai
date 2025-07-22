@@ -14,7 +14,12 @@ import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtGuard } from 'src/auth/guards/jwt.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { CreateJobDto, GetJobsDto, UpdateJobDto } from './dto/job.dto';
+import {
+  AiJobSearchDto,
+  CreateJobDto,
+  GetJobsDto,
+  UpdateJobDto,
+} from './dto/job.dto';
 import { JobService } from './job.service';
 
 @UseGuards(JwtGuard, RolesGuard)
@@ -25,6 +30,12 @@ export class JobController {
   @Get()
   getAllJobs(@Query() query: GetJobsDto) {
     return this.jobService.findAll(query);
+  }
+
+  @Roles(Role.CANDIDATE)
+  @Post('ai-search')
+  aiSearch(@GetUser('id') userId: User['id'], @Body() body: AiJobSearchDto) {
+    return this.jobService.aiSearch(userId, body);
   }
 
   @Roles(Role.RECRUITER)
