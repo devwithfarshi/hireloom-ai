@@ -525,6 +525,7 @@ export function JobBrowsePage() {
               jobs={isAiMode && aiResults !== null ? aiResults : (jobsData?.data || [])}
               onEdit={handleEditJob}
               onDelete={handleDeleteJob}
+              isAiMode={isAiMode && aiResults !== null}
             />
           </div>
 
