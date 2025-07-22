@@ -63,3 +63,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Project specific
 /generated/prisma
+demo-res-ai-search-job.json
