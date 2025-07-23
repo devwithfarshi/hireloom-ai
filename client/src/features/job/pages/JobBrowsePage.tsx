@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import { RootState } from "@/lib/store";
 import { JobList } from "../components/JobList";
 import { StreamingSearchProgress } from "../components/StreamingSearchProgress";
+import { AiLoader } from "@/components/ui/ai-loader";
 import {
   EmploymentType,
   Job,
@@ -386,12 +387,22 @@ export function JobBrowsePage() {
                         disabled={streamingState.isSearching || !aiQuery.trim()}
                         className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       >
-                        <SparklesIcon
-                          className={`h-3 w-3 sm:h-4 sm:w-4 mr-2 ${streamingState.isSearching ? 'animate-spin' : 'animate-pulse'}`}
-                          style={{ animationDuration: streamingState.isSearching ? "1s" : "3s" }}
-                        />
-                        <span className="hidden sm:inline">{streamingState.isSearching ? "Searching..." : "Search with AI"}</span>
-                        <span className="sm:hidden">{streamingState.isSearching ? "Searching..." : "AI Search"}</span>
+                        {streamingState.isSearching ? (
+                          <div className="flex items-center">
+                            <div className="relative mr-2">
+                              <div className="h-3 w-3 sm:h-4 sm:w-4 rounded-full border border-white border-t-transparent animate-spin" />
+                              <SparklesIcon className="absolute inset-0 h-3 w-3 sm:h-4 sm:w-4 text-white animate-pulse" style={{ animationDuration: "2s" }} />
+                            </div>
+                            <span className="hidden sm:inline">AI Searching...</span>
+                            <span className="sm:hidden">Searching...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <SparklesIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-pulse" style={{ animationDuration: "3s" }} />
+                            <span className="hidden sm:inline">Search with AI</span>
+                            <span className="sm:hidden">AI Search</span>
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -509,10 +520,14 @@ export function JobBrowsePage() {
         </CardContent>
       </Card>
 
-      {/* Show loading indicator when AI search is active but no jobs received yet */}
+      {/* Show AI loading indicator when AI search is active but no jobs received yet */}
       {isAiMode && streamingState.isSearching && streamingState.jobs.length === 0 && !streamingState.error && (
-        <div className="text-center py-6 sm:py-8">
-          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
+        <div className="text-center py-8 sm:py-12">
+          <AiLoader 
+            size="lg" 
+            text="AI is analyzing your request and finding perfect matches..."
+            className="mx-auto"
+          />
         </div>
       )}
 

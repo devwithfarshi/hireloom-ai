@@ -1,14 +1,15 @@
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { 
-  SparklesIcon, 
-  StopCircleIcon, 
-  CheckCircleIcon, 
+import {
+  SparklesIcon,
+  StopCircleIcon,
+  CheckCircleIcon,
   AlertCircleIcon,
-  ClockIcon
+  ClockIcon,
 } from "lucide-react";
 import { StreamingSearchState } from "../hooks/useStreamingAiSearch";
+import { AiLoader } from "@/components/ui/ai-loader";
 
 interface StreamingSearchProgressProps {
   state: StreamingSearchState;
@@ -16,17 +17,12 @@ interface StreamingSearchProgressProps {
   onReset: () => void;
 }
 
-export function StreamingSearchProgress({ 
-  state, 
-  onStop, 
-  onReset 
+export function StreamingSearchProgress({
+  state,
+  onStop,
+  onReset,
 }: StreamingSearchProgressProps) {
-  const { 
-    isSearching, 
-    progress, 
-    status, 
-    error 
-  } = state;
+  const { isSearching, progress, status, error } = state;
 
   const getProgressColor = () => {
     if (error) return "bg-red-500";
@@ -36,8 +32,10 @@ export function StreamingSearchProgress({
 
   const getStatusIcon = () => {
     if (error) return <AlertCircleIcon className="h-5 w-5 text-red-500" />;
-    if (progress === 100) return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
-    if (isSearching) return <SparklesIcon className="h-5 w-5 text-blue-500 animate-pulse" />;
+    if (progress === 100)
+      return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
+    if (isSearching)
+      return <AiLoader size="sm" showText={false} className="h-5 w-5" />;
     return <ClockIcon className="h-5 w-5 text-gray-500" />;
   };
 
@@ -45,25 +43,27 @@ export function StreamingSearchProgress({
     <Card className="mb-6">
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             {getStatusIcon()}
             <div>
               <CardTitle className="text-lg">
-                {error ? 'Search Failed' : 
-                 progress === 100 ? 'Search Completed' : 
-                 'AI Search in Progress'}
+                {error
+                  ? "Search Failed"
+                  : progress === 100
+                    ? "Search Completed"
+                    : "AI Search in Progress"}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {status || 'Preparing search...'}
+                {status || "Preparing search..."}
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             {isSearching && (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={onStop}
                 className="flex items-center gap-2"
               >
@@ -71,11 +71,11 @@ export function StreamingSearchProgress({
                 Stop
               </Button>
             )}
-            
+
             {(progress === 100 || error) && (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={onReset}
                 className="flex items-center gap-2"
               >
@@ -86,7 +86,7 @@ export function StreamingSearchProgress({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Progress Bar */}
         <div className="space-y-2">
@@ -94,18 +94,21 @@ export function StreamingSearchProgress({
             <span>Progress</span>
             <span>{Math.round(progress)}%</span>
           </div>
-          <Progress 
-            value={progress} 
+          <Progress
+            value={progress}
             className="h-2"
             // Apply custom color based on state
-            style={{
-              '--progress-background': error ? '#ef4444' : 
-                                     progress === 100 ? '#22c55e' : '#3b82f6'
-            } as React.CSSProperties}
+            style={
+              {
+                "--progress-background": error
+                  ? "#ef4444"
+                  : progress === 100
+                    ? "#22c55e"
+                    : "#3b82f6",
+              } as React.CSSProperties
+            }
           />
         </div>
-
-
 
         {/* Error Display */}
         {error && (
