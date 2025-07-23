@@ -26,16 +26,19 @@ import {
 import { SearchIcon, RefreshCwIcon, SparklesIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { toast } from "sonner";
+import { RootState } from "@/lib/store";
 import { JobList } from "../components/JobList";
+import { StreamingSearchProgress } from "../components/StreamingSearchProgress";
 import {
   EmploymentType,
   Job,
   useDeleteJobMutation,
   useGetJobsQuery,
-  useAiSearchJobsMutation,
 } from "../jobApi";
 import { useFilterDebounce } from "../hooks/useFilterDebounce";
+import { useStreamingAiSearch } from "../hooks/useStreamingAiSearch";
 
 export function JobBrowsePage() {
   const navigate = useNavigate();
@@ -54,9 +57,18 @@ export function JobBrowsePage() {
   const [aiQuery, setAiQuery] = useState("");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showAiContent, setShowAiContent] = useState(false);
-  const [aiResults, setAiResults] = useState<Job[] | null>(null);
-  const [isAiSearching, setIsAiSearching] = useState(false);
   const limit = 9;
+
+  // Get current user from Redux store
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+  
+  // Use streaming AI search hook
+  const {
+    state: streamingState,
+    startSearch: startStreamingSearch,
+    stopSearch: stopStreamingSearch,
+    resetSearch: resetStreamingSearch,
+  } = useStreamingAiSearch();
 
   const handleAiToggle = async () => {
     setIsTransitioning(true);
@@ -66,7 +78,7 @@ export function JobBrowsePage() {
       setShowAiContent(false);
       await new Promise((resolve) => setTimeout(resolve, 300));
       setIsAiMode(false);
-      setAiResults(null); // Clear AI results when switching back to normal mode
+      resetStreamingSearch(); // Clear streaming search results
     } else {
       // Transitioning from normal to AI mode
       setIsAiMode(true);
@@ -77,24 +89,19 @@ export function JobBrowsePage() {
     setIsTransitioning(false);
   };
 
-  const handleAiSearch = async () => {
+  const handleAiSearch = () => {
     if (!aiQuery.trim()) {
       toast.error("Please enter a search query");
       return;
     }
 
-    setIsAiSearching(true);
-    try {
-      const result = await aiSearchJobs({ query: aiQuery }).unwrap();
-      setAiResults(result.jobs || []);
-      toast.success(`Found ${result.jobs?.length || 0} AI-matched jobs`);
-    } catch (error) {
-      console.error("AI search failed:", error);
-      toast.error("AI search failed. Please try again.");
-      setAiResults([]);
-    } finally {
-      setIsAiSearching(false);
+    if (!currentUser?.id) {
+      toast.error("Please log in to use AI search");
+      return;
     }
+
+    // Start streaming search
+    startStreamingSearch(aiQuery, currentUser.id);
   };
 
   const {
@@ -114,7 +121,6 @@ export function JobBrowsePage() {
   });
 
   const [deleteJob] = useDeleteJobMutation();
-  const [aiSearchJobs] = useAiSearchJobsMutation();
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -377,15 +383,15 @@ export function JobBrowsePage() {
                     <div className="mt-4 flex justify-end">
                       <Button 
                         onClick={handleAiSearch}
-                        disabled={isAiSearching || !aiQuery.trim()}
+                        disabled={streamingState.isSearching || !aiQuery.trim()}
                         className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                       >
                         <SparklesIcon
-                          className={`h-3 w-3 sm:h-4 sm:w-4 mr-2 ${isAiSearching ? 'animate-spin' : 'animate-pulse'}`}
-                          style={{ animationDuration: isAiSearching ? "1s" : "3s" }}
+                          className={`h-3 w-3 sm:h-4 sm:w-4 mr-2 ${streamingState.isSearching ? 'animate-spin' : 'animate-pulse'}`}
+                          style={{ animationDuration: streamingState.isSearching ? "1s" : "3s" }}
                         />
-                        <span className="hidden sm:inline">{isAiSearching ? "Searching..." : "Search with AI"}</span>
-                        <span className="sm:hidden">{isAiSearching ? "Searching..." : "AI Search"}</span>
+                        <span className="hidden sm:inline">{streamingState.isSearching ? "Searching..." : "Search with AI"}</span>
+                        <span className="sm:hidden">{streamingState.isSearching ? "Searching..." : "AI Search"}</span>
                       </Button>
                     </div>
                   </div>
@@ -503,34 +509,42 @@ export function JobBrowsePage() {
         </CardContent>
       </Card>
 
-      {(isLoading || isFetching) && !isAiMode ? (
+      {/* Show loading indicator when AI search is active but no jobs received yet */}
+      {isAiMode && streamingState.isSearching && streamingState.jobs.length === 0 && !streamingState.error && (
         <div className="text-center py-6 sm:py-8">
           <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
         </div>
-      ) : isAiSearching ? (
+      )}
+
+      {/* Show streaming progress when in AI mode and search has results or completed */}
+      {isAiMode && (streamingState.jobs.length > 0 || streamingState.error || (streamingState.progress > 0 && !streamingState.isSearching)) && (
+        <StreamingSearchProgress
+          state={streamingState}
+          onStop={stopStreamingSearch}
+          onReset={() => {
+            resetStreamingSearch();
+            setAiQuery("");
+          }}
+        />
+      )}
+
+      {(isLoading || isFetching) && !isAiMode ? (
         <div className="text-center py-6 sm:py-8">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative">
-              <SparklesIcon className="h-8 w-8 text-blue-500 animate-spin" />
-              <div className="absolute inset-0 bg-blue-400 rounded-full animate-ping opacity-20"></div>
-            </div>
-            <p className="text-muted-foreground text-sm sm:text-base">AI is analyzing your request...</p>
-            <p className="text-xs text-muted-foreground">This may take a few moments</p>
-          </div>
+          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
         </div>
       ) : (
         <>
           <div className="space-y-4 sm:space-y-6">
             <JobList
-              jobs={isAiMode && aiResults !== null ? aiResults : (jobsData?.data || [])}
+              jobs={isAiMode && streamingState.jobs.length > 0 ? streamingState.jobs : (jobsData?.data || [])}
               onEdit={handleEditJob}
               onDelete={handleDeleteJob}
-              isAiMode={isAiMode && aiResults !== null}
+              isAiMode={isAiMode && streamingState.jobs.length > 0}
             />
           </div>
 
           {/* Show different empty states for AI vs regular search */}
-          {isAiMode && aiResults !== null && aiResults.length === 0 && (
+          {isAiMode && !streamingState.isSearching && streamingState.progress === 100 && streamingState.jobs.length === 0 && !streamingState.error && (
             <div className="text-center py-6 sm:py-8">
               <div className="mb-4">
                 <SparklesIcon className="h-12 w-12 text-blue-400 mx-auto mb-2 animate-pulse" />
@@ -541,7 +555,7 @@ export function JobBrowsePage() {
               <Button
                 onClick={() => {
                   setAiQuery("");
-                  setAiResults(null);
+                  resetStreamingSearch();
                 }}
                 variant="outline"
                 className="text-sm sm:text-base"
@@ -611,11 +625,11 @@ export function JobBrowsePage() {
           )}
 
           {/* Show AI search results count */}
-          {isAiMode && aiResults !== null && aiResults.length > 0 && (
+          {isAiMode && streamingState.jobs.length > 0 && (
             <div className="mt-6 sm:mt-8 text-center">
               <p className="text-sm text-muted-foreground">
                 <SparklesIcon className="inline h-4 w-4 mr-1 text-blue-500" />
-                Found {aiResults.length} AI-matched jobs
+                Found {streamingState.jobs.length} AI-matched jobs
               </p>
             </div>
           )}

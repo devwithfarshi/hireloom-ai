@@ -8,7 +8,11 @@ import {
   Post,
   Query,
   UseGuards,
+  Sse,
+  MessageEvent,
+  Headers,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { Role, User } from '@prisma/client';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -36,6 +40,16 @@ export class JobController {
   @Post('ai-search')
   aiSearch(@GetUser('id') userId: User['id'], @Body() body: AiJobSearchDto) {
     return this.jobService.aiSearch(userId, body);
+  }
+
+  @Sse('ai-search-stream')
+  aiSearchStream(
+    @Query('userId') userId: string,
+    @Query('query') query: string,
+    @Headers('authorization') authorization?: string,
+  ): Observable<MessageEvent> {
+    const token = authorization?.replace('Bearer ', '');
+    return this.jobService.aiSearchStream(userId, query, token);
   }
 
   @Roles(Role.RECRUITER)

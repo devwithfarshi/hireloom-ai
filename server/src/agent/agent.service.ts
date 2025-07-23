@@ -1,8 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, MessageEvent } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { PromptTemplate } from '@langchain/core/prompts';
 import { JsonOutputParser } from '@langchain/core/output_parsers';
+import { Subject } from 'rxjs';
 
 export interface JobRequirements {
   title: string;
@@ -276,47 +277,13 @@ Provide only the JSON response, no additional text.`);
     };
   }
 
-  /**
-   * Ai Job Search
-   */
-  private enhanceQueryWithProfile(
-    query: string,
-    profile: CandidateProfile,
-  ): string {
-    console.log('🔧 Enhancing query with profile data');
-    console.log('📝 Original query:', query);
-    
-    const skillsText = profile.skills?.join(', ') || '';
-    const experienceText = profile.experience || '';
-    const resumeText = profile.resumeContent || '';
-    
-    console.log('🛠️ Profile components:', {
-      skillsCount: profile.skills?.length || 0,
-      hasExperience: !!experienceText,
-      resumeLength: resumeText.length
-    });
 
-    const enhancedQuery = `
-      Search Query: ${query}
-      
-      Candidate Skills: ${skillsText}
-      Experience Level: ${experienceText}
-      Resume Content: ${resumeText.substring(0, 1000)}...
-      
-      Please find jobs that match this candidate's profile and search intent.
-    `;
-    
-    console.log('✅ Query enhancement completed');
-    return enhancedQuery;
-  }
 
   async aiSearchJobs(
     searchDto: { query: string; profile: CandidateProfile },
     prismaService: any,
   ): Promise<{
     jobs: ScoredJob[];
-    aiAnalysis: string;
-    searchStrategy: string;
   }> {
     console.log('🔍 AI Search Jobs - Starting search process');
     console.log('📝 Search Query:', searchDto.query);
@@ -327,21 +294,7 @@ Provide only the JSON response, no additional text.`);
     });
 
     try {
-      console.log('🔧 Step 1: Enhancing query with profile context');
-      const enhancedQuery = this.enhanceQueryWithProfile(
-        searchDto.query,
-        searchDto.profile,
-      );
-      console.log('✅ Enhanced query created, length:', enhancedQuery.length);
-
-      console.log('🤖 Step 2: Generating AI analysis');
-      const aiAnalysis = await this.generateSearchAnalysis(
-        enhancedQuery,
-        searchDto.profile,
-      );
-      console.log('✅ AI analysis generated, length:', aiAnalysis.length);
-
-      console.log('📊 Step 3: Fetching active jobs from database');
+      console.log('📊 Step 1: Fetching active jobs from database');
       const allJobs = await prismaService.job.findMany({
         where: {
           active: true,
@@ -361,7 +314,7 @@ Provide only the JSON response, no additional text.`);
       });
       console.log('✅ Jobs fetched from database:', allJobs.length);
 
-      console.log('🎯 Step 4: Scoring jobs against candidate profile');
+      console.log('🎯 Step 2: Scoring jobs against candidate profile');
       const scoredJobs = await this.scoreJobsForCandidate(
         allJobs,
         searchDto.profile,
@@ -369,7 +322,7 @@ Provide only the JSON response, no additional text.`);
       );
       console.log('✅ Jobs scored, total:', scoredJobs.length);
 
-      console.log('🔍 Step 5: Filtering and sorting by relevance');
+      console.log('🔍 Step 3: Filtering and sorting by relevance');
       const relevantJobs = scoredJobs
         .filter((job) => job.relevanceScore > 30) // Only show jobs with >30% relevance
         .sort((a, b) => b.relevanceScore - a.relevanceScore)
@@ -385,8 +338,6 @@ Provide only the JSON response, no additional text.`);
       console.log('🎉 AI Search completed successfully');
       return {
         jobs: relevantJobs,
-        aiAnalysis,
-        searchStrategy: 'AI-powered job matching based on profile analysis',
       };
     } catch (error) {
       console.error('❌ AI Search failed:', error.message);
@@ -402,42 +353,351 @@ Provide only the JSON response, no additional text.`);
     }
   }
 
-  private async generateSearchAnalysis(
-    enhancedQuery: string,
-    profile: CandidateProfile,
-  ): Promise<string> {
-    console.log('🤖 Generating AI search analysis');
-    console.log('📊 Enhanced query length:', enhancedQuery.length);
-    
+
+
+  /**
+   * Streaming AI Job Search with batch processing
+   */
+  async aiSearchJobsStream(
+    searchDto: { query: string; profile: CandidateProfile },
+    prismaService: any,
+    subject: Subject<MessageEvent>,
+  ): Promise<void> {
+    console.log('🚀 Starting streaming AI job search');
+    console.log('📝 Search Query:', searchDto.query);
+    console.log('👤 Candidate Profile:', {
+      experience: searchDto.profile.experience,
+      skills: searchDto.profile.skills,
+      hasResumeContent: !!searchDto.profile.resumeContent
+    });
+
     try {
-      console.log('🔄 Creating prompt template');
-      const promptTemplate = PromptTemplate.fromTemplate(`
-Analyze this job search request and provide insights:
+      // Step 1: Fetch jobs
+      subject.next({
+        data: JSON.stringify({
+          type: 'status',
+          message: 'Fetching jobs from database...',
+          progress: 15,
+        }),
+      } as MessageEvent);
 
-{enhancedQuery}
+      const allJobs = await prismaService.job.findMany({
+        where: { active: true },
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              industry: true,
+              location: true,
+              domain: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
 
-Provide a brief analysis covering:
-1. Key search intent
-2. Recommended job types based on profile
-3. Skills alignment opportunities
-4. Career growth suggestions
-
-Keep the response concise and actionable.`);
-
-      console.log('🔄 Sending request to AI model');
-      const chain = promptTemplate.pipe(this.model);
-      const result = await chain.invoke({ enhancedQuery });
+      console.log('✅ Jobs fetched:', allJobs.length);
       
-      const analysis = result.content as string;
-      console.log('✅ AI analysis generated successfully, length:', analysis.length);
-      console.log('📝 Analysis preview:', analysis.substring(0, 100) + '...');
-      return analysis;
+      subject.next({
+        data: JSON.stringify({
+          type: 'status',
+          message: `Found ${allJobs.length} jobs. Starting analysis...`,
+          progress: 25,
+        }),
+      } as MessageEvent);
+
+      // Step 2: Process jobs in batches
+      await this.processJobsInBatches(
+        allJobs,
+        searchDto.profile,
+        searchDto.query,
+        subject,
+      );
+
     } catch (error) {
-      console.error('❌ Failed to generate AI analysis:', error.message);
-      this.logger.error('Failed to generate search analysis', error.message);
-      const fallbackAnalysis = 'AI analysis temporarily unavailable. Showing relevant job matches based on your profile.';
-      console.log('🔄 Using fallback analysis');
-      return fallbackAnalysis;
+      console.error('❌ Streaming AI search failed:', error.message);
+      subject.next({
+        data: JSON.stringify({
+          type: 'error',
+          message: 'AI search failed. Falling back to basic search.',
+          error: error.message,
+        }),
+      } as MessageEvent);
+
+      // Fallback to basic search
+      await this.performBasicJobSearchStream(searchDto.query, prismaService, subject);
+    }
+  }
+
+  private async processJobsInBatches(
+    jobs: JobWithCompany[],
+    profile: CandidateProfile,
+    searchQuery: string,
+    subject: Subject<MessageEvent>,
+  ): Promise<void> {
+    const BATCH_SIZE = 5; // Process 5 jobs at a time
+    const totalJobs = jobs.length;
+    const batches: JobWithCompany[][] = [];
+    
+    // Split jobs into batches
+    for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+      batches.push(jobs.slice(i, i + BATCH_SIZE));
+    }
+
+    console.log(`📦 Processing ${totalJobs} jobs in ${batches.length} batches of ${BATCH_SIZE}`);
+    
+    const allScoredJobs: ScoredJob[] = [];
+    let processedJobs = 0;
+
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+      const batch = batches[batchIndex];
+      const batchNumber = batchIndex + 1;
+      
+      console.log(`🔄 Processing batch ${batchNumber}/${batches.length}`);
+      
+      subject.next({
+        data: JSON.stringify({
+          type: 'status',
+          message: `Processing batch ${batchNumber}/${batches.length} (${batch.length} jobs)...`,
+          progress: 25 + (batchIndex / batches.length) * 60,
+        }),
+      } as MessageEvent);
+
+      // Process batch in parallel
+      const batchPromises = batch.map(async (job) => {
+        try {
+          const jobRequirements: JobRequirements = {
+            title: job.title,
+            description: job.description,
+            employmentType: job.employmentType,
+            experience: job.experience,
+            tags: job.tags || [],
+          };
+
+          // Use faster scoring with reduced AI calls
+          const scoringResult = await this.scoreCandidateFast(
+            jobRequirements,
+            profile,
+          );
+
+          const queryRelevance = this.calculateQueryRelevance(job, searchQuery);
+          const relevanceScore = Math.round(
+            scoringResult.score * 0.7 + queryRelevance * 0.3,
+          );
+
+          return {
+            ...job,
+            relevanceScore,
+            matchAnalysis: {
+              score: scoringResult.score,
+              reasoning: scoringResult.reasoning,
+              strengths: scoringResult.strengths,
+              weaknesses: scoringResult.weaknesses,
+              recommendations: scoringResult.recommendations,
+            },
+            queryRelevance,
+          } as ScoredJob;
+        } catch (error) {
+          console.error(`❌ Failed to score job ${job.title}:`, error.message);
+          // Return basic scoring for failed jobs
+          return {
+            ...job,
+            relevanceScore: 30,
+            matchAnalysis: {
+              score: 30,
+              reasoning: 'Basic scoring due to processing error',
+              strengths: ['Job available'],
+              weaknesses: ['Unable to perform detailed analysis'],
+              recommendations: ['Manual review recommended'],
+            },
+            queryRelevance: 30,
+          } as ScoredJob;
+        }
+      });
+
+      // Wait for batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      allScoredJobs.push(...batchResults);
+      processedJobs += batch.length;
+
+      // Send batch results
+      const relevantBatchJobs = batchResults
+        .filter(job => job.relevanceScore > 30)
+        .sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+      if (relevantBatchJobs.length > 0) {
+        subject.next({
+          data: JSON.stringify({
+            type: 'batch_results',
+            data: relevantBatchJobs,
+            progress: 25 + ((batchIndex + 1) / batches.length) * 60,
+          }),
+        } as MessageEvent);
+      }
+
+      // Small delay between batches to prevent overwhelming
+      if (batchIndex < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+
+    // Send final results
+    const finalResults = allScoredJobs
+      .filter(job => job.relevanceScore > 30)
+      .sort((a, b) => b.relevanceScore - a.relevanceScore)
+      .slice(0, 20);
+
+    console.log('✅ Streaming search completed');
+    console.log(`📊 Final results: ${finalResults.length} relevant jobs`);
+
+    subject.next({
+      data: JSON.stringify({
+        type: 'final_results',
+        data: {
+          jobs: finalResults,
+        },
+        progress: 100,
+      }),
+    } as MessageEvent);
+  }
+
+  /**
+   * Faster candidate scoring with reduced AI calls
+   */
+  private async scoreCandidateFast(
+    jobRequirements: JobRequirements,
+    candidateProfile: CandidateProfile,
+  ): Promise<ScoringResult> {
+    // Use fallback scoring for speed, with occasional AI calls for high-potential matches
+    const quickScore = this.calculateQuickScore(jobRequirements, candidateProfile);
+    
+    // Only use AI for potentially high-scoring matches (>60)
+    if (quickScore > 60 && Math.random() < 0.3) { // 30% chance for AI scoring on good matches
+      try {
+        return await this.scoreCandidate(jobRequirements, candidateProfile);
+      } catch (error) {
+        console.log('🔄 AI scoring failed, using quick score');
+        return this.generateQuickScoringResult(jobRequirements, candidateProfile, quickScore);
+      }
+    }
+    
+    return this.generateQuickScoringResult(jobRequirements, candidateProfile, quickScore);
+  }
+
+  private calculateQuickScore(
+    jobRequirements: JobRequirements,
+    candidateProfile: CandidateProfile,
+  ): number {
+    let score = 40; // Base score
+
+    // Experience scoring (30 points max)
+    const experienceRatio = candidateProfile.experience / Math.max(jobRequirements.experience, 1);
+    if (experienceRatio >= 1) score += 30;
+    else if (experienceRatio >= 0.7) score += 20;
+    else if (experienceRatio >= 0.5) score += 10;
+
+    // Skills matching (30 points max)
+    const matchingSkills = candidateProfile.skills.filter(skill =>
+      jobRequirements.tags.some(tag =>
+        tag.toLowerCase().includes(skill.toLowerCase()) ||
+        skill.toLowerCase().includes(tag.toLowerCase())
+      )
+    );
+    const skillsRatio = matchingSkills.length / Math.max(jobRequirements.tags.length, 1);
+    score += skillsRatio * 30;
+
+    return Math.min(100, Math.round(score));
+  }
+
+  private generateQuickScoringResult(
+    jobRequirements: JobRequirements,
+    candidateProfile: CandidateProfile,
+    score: number,
+  ): ScoringResult {
+    const matchingSkills = candidateProfile.skills.filter(skill =>
+      jobRequirements.tags.some(tag =>
+        tag.toLowerCase().includes(skill.toLowerCase()) ||
+        skill.toLowerCase().includes(tag.toLowerCase())
+      )
+    );
+
+    return {
+      score,
+      reasoning: `Quick analysis: ${score}% match based on experience and skills alignment`,
+      strengths: matchingSkills.length > 0 
+        ? [`Matching skills: ${matchingSkills.slice(0, 3).join(', ')}`]
+        : ['Profile available for review'],
+      weaknesses: matchingSkills.length === 0 
+        ? ['Limited skill overlap detected']
+        : ['Detailed analysis pending'],
+      recommendations: [
+        'Review job details for full assessment',
+        score > 70 ? 'Strong candidate - consider applying' : 'Evaluate fit carefully'
+      ],
+    };
+  }
+
+  private async performBasicJobSearchStream(
+    query: string,
+    prismaService: any,
+    subject: Subject<MessageEvent>,
+  ): Promise<void> {
+    try {
+      const jobs = await prismaService.job.findMany({
+        where: {
+          active: true,
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+            { tags: { has: query } },
+          ],
+        },
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              industry: true,
+              location: true,
+              domain: true,
+            },
+          },
+        },
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+
+      const basicResults = jobs.map(job => ({
+        ...job,
+        relevanceScore: 50,
+        matchAnalysis: {
+          score: 50,
+          reasoning: 'Basic keyword matching applied',
+          strengths: ['Keyword match found'],
+          weaknesses: ['AI analysis unavailable'],
+          recommendations: ['Manual review recommended'],
+        },
+        queryRelevance: 50,
+      }));
+
+      subject.next({
+        data: JSON.stringify({
+          type: 'final_results',
+          data: {
+            jobs: basicResults,
+          },
+          progress: 100,
+        }),
+      } as MessageEvent);
+    } catch (error) {
+      subject.next({
+        data: JSON.stringify({
+          type: 'error',
+          message: 'Search failed completely',
+          error: error.message,
+        }),
+      } as MessageEvent);
     }
   }
 
@@ -608,8 +868,6 @@ Keep the response concise and actionable.`);
     prismaService: any,
   ): Promise<{
     jobs: ScoredJob[];
-    aiAnalysis: string;
-    searchStrategy: string;
   }> {
     console.log('🔄 Performing basic job search (fallback mode)');
     console.log('📝 Search query:', query);
@@ -678,22 +936,17 @@ Keep the response concise and actionable.`);
       console.log('✅ Basic search fallback completed');
       console.log('📊 Results summary:', {
         totalJobs: scoredJobs.length,
-        avgRelevance: scoredJobs.reduce((sum, job) => sum + job.relevanceScore, 0) / scoredJobs.length || 0
+        avgRelevance: scoredJobs.reduce((sum, job) => sum + job.relevanceScore, 0) / scoredJobs.length || 0,
       });
 
       return {
         jobs: scoredJobs,
-        aiAnalysis:
-          'Basic search performed. AI analysis temporarily unavailable.',
-        searchStrategy: 'Keyword-based search fallback',
       };
     } catch (error) {
       console.error('❌ Basic job search failed:', error.message);
       this.logger.error('Failed to perform basic job search', error.message);
       return {
         jobs: [],
-        aiAnalysis: 'Search temporarily unavailable. Please try again later.',
-        searchStrategy: 'Error fallback',
       };
     }
   }

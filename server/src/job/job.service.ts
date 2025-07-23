@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, MessageEvent } from '@nestjs/common';
 import { PaginatedResult, paginatePrisma } from 'src/helpers/paginate-prisma';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AgentService } from 'src/agent/agent.service';
 import { CandidateResumeService } from 'src/candidate-resume/candidate-resume.service';
+import { Observable, Subject } from 'rxjs';
 import {
   AiJobSearchDto,
   CreateJobDto,
@@ -188,5 +189,87 @@ export class JobService {
       },
       this.prisma,
     );
+  }
+
+  aiSearchStream(userId: string, query: string, token?: string): Observable<MessageEvent> {
+    const subject = new Subject<MessageEvent>();
+    
+    // Start the streaming process asynchronously
+    this.performStreamingAiSearch(userId, query, subject, token);
+    
+    return subject.asObservable();
+  }
+
+  private async performStreamingAiSearch(
+    userId: string,
+    query: string,
+    subject: Subject<MessageEvent>,
+    token?: string,
+  ): Promise<void> {
+    try {
+      // Validate token if provided (basic validation)
+      if (token) {
+        // You can add JWT validation here if needed
+        // For now, we'll proceed with the search
+      }
+
+      // Send initial status
+      subject.next({
+        data: JSON.stringify({
+          type: 'status',
+          message: 'Initializing AI search...',
+          progress: 0,
+        }),
+      } as MessageEvent);
+
+      // Get candidate profile
+      const candidateProfile = await this.prisma.candidateProfile.findUnique({
+        where: { candidateUserId: userId },
+        include: { CandidateResume: true },
+      });
+
+      if (!candidateProfile) {
+        subject.error(new NotFoundException('Candidate profile not found'));
+        return;
+      }
+
+      // Get resume content
+      let resumeContent = 'No resume uploaded';
+      if (
+        candidateProfile.CandidateResume &&
+        Object.keys(candidateProfile.CandidateResume).length > 0
+      ) {
+        try {
+          resumeContent = await this.candidateResumeService.getResumeContent(userId);
+        } catch (error) {
+          resumeContent = 'Resume uploaded but could not be parsed';
+        }
+      }
+
+      const profileForSearch = {
+        experience: candidateProfile.experience,
+        skills: candidateProfile.skills,
+        resumeContent,
+      };
+
+      subject.next({
+        data: JSON.stringify({
+          type: 'status',
+          message: 'Profile loaded, fetching jobs...',
+          progress: 10,
+        }),
+      } as MessageEvent);
+
+      // Perform streaming AI search
+      await this.agentService.aiSearchJobsStream(
+        { query, profile: profileForSearch },
+        this.prisma,
+        subject,
+      );
+
+      subject.complete();
+    } catch (error) {
+      subject.error(error);
+    }
   }
 }
