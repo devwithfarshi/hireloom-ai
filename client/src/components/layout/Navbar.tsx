@@ -49,10 +49,7 @@ export function Navbar() {
                 alt="HireLoom AI Logo"
                 className="w-8 sm:w-10 aspect-square bg-blend-color-burn"
               />
-              <p className="text-lg sm:text-xl font-bold hidden xs:block">
-                HireLoom AI
-              </p>
-              <p className="text-lg sm:text-xl font-bold xs:hidden">HL</p>
+              <p className="text-lg sm:text-xl font-bold">HireLoom AI</p>
             </Link>
           </div>
 
