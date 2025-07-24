@@ -78,7 +78,7 @@ export function ChatbotSidebar() {
               <div className="flex items-center space-x-2">
                 <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                  Ask Loo
+                  HiRa
                 </h2>
               </div>
               <div className="flex items-center space-x-1 sm:space-x-2">
@@ -155,7 +155,11 @@ export function ChatbotSidebar() {
                           <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-3 sm:mb-4 px-2">
                             Start your first conversation to see it here.
                           </p>
-                          <Button onClick={handleNewChat} size="sm" className="text-xs sm:text-sm">
+                          <Button
+                            onClick={handleNewChat}
+                            size="sm"
+                            className="text-xs sm:text-sm"
+                          >
                             <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             Start New Chat
                           </Button>
@@ -208,7 +212,10 @@ export function ChatbotSidebar() {
                           Start a new conversation to get help with your
                           recruitment tasks.
                         </p>
-                        <Button onClick={handleNewChat} className="w-full text-xs sm:text-sm">
+                        <Button
+                          onClick={handleNewChat}
+                          className="w-full text-xs sm:text-sm"
+                        >
                           <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                           Start New Chat
                         </Button>

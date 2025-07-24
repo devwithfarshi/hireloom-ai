@@ -49,7 +49,9 @@ export function Navbar() {
                 alt="HireLoom AI Logo"
                 className="w-8 sm:w-10 aspect-square bg-blend-color-burn"
               />
-              <p className="text-lg sm:text-xl font-bold hidden xs:block">HireLoom AI</p>
+              <p className="text-lg sm:text-xl font-bold hidden xs:block">
+                HireLoom AI
+              </p>
               <p className="text-lg sm:text-xl font-bold xs:hidden">HL</p>
             </Link>
           </div>
@@ -95,7 +97,7 @@ export function Navbar() {
           </div>
 
           {/* Right side - Desktop */}
-          <div className="hidden sm:flex items-center space-x-2 lg:space-x-4">
+          <div className="flex ml-auto items-center space-x-2 lg:space-x-4">
             {/* AI Assistant Toggle */}
             {(user?.role === Role.RECRUITER ||
               user?.role === Role.SUPER_ADMIN) && (
@@ -103,14 +105,14 @@ export function Navbar() {
                 onClick={handleChatbotToggle}
                 variant={isChatbotOpen ? "default" : "outline"}
                 size="sm"
-                className={`relative text-xs sm:text-sm ${
+                className={`relative text-sm sm:text-base ${
                   isChatbotOpen
                     ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
                     : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
                 }`}
               >
                 <SparklesIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline ml-1">Ask Loo</span>
+                <span className="inline">HiRa</span>
                 {isChatbotOpen && (
                   <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
                 )}
@@ -122,12 +124,14 @@ export function Navbar() {
               disabled={isLoading}
               variant="destructive"
               size="sm"
-              className="text-xs sm:text-sm"
+              className="text-xs sm:text-sm hidden lg:inline-block"
             >
-              {isLoading ? <Spinner size="sm" className="mr-1 sm:mr-2" /> : null}
+              {isLoading ? (
+                <Spinner size="sm" className="mr-1 sm:mr-2" />
+              ) : null}
               {isLoading ? "Logging out..." : "Logout"}
             </Button>
-            
+
             {user && (
               <div className="hidden lg:block">
                 <span className="text-sm font-medium">
@@ -136,7 +140,7 @@ export function Navbar() {
                 </span>
               </div>
             )}
-            
+
             <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
               <AvatarFallback>
                 <span className="text-xs sm:text-sm font-medium">
@@ -152,36 +156,7 @@ export function Navbar() {
           {/* Mobile menu button and essential items */}
           <div className="flex sm:hidden items-center space-x-2">
             {/* AI Assistant Toggle - Mobile */}
-            {(user?.role === Role.RECRUITER ||
-              user?.role === Role.SUPER_ADMIN) && (
-              <Button
-                onClick={handleChatbotToggle}
-                variant={isChatbotOpen ? "default" : "outline"}
-                size="sm"
-                className={`relative h-8 w-8 p-0 ${
-                  isChatbotOpen
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white border-0"
-                    : "border-purple-500 text-purple-600 hover:bg-purple-50 hover:text-purple-700"
-                }`}
-              >
-                <SparklesIcon className="h-4 w-4" />
-                {isChatbotOpen && (
-                  <span className="absolute -top-1 -right-1 h-2 w-2 bg-cyan-400 rounded-full animate-pulse" />
-                )}
-              </Button>
-            )}
-            
-            <Avatar className="h-8 w-8">
-              <AvatarFallback>
-                <span className="text-xs font-medium">
-                  {[user?.firstName, user?.lastName]
-                    .filter(Boolean)
-                    .join(" ")
-                    .charAt(0)}
-                </span>
-              </AvatarFallback>
-            </Avatar>
-            
+
             <Button
               onClick={toggleMobileMenu}
               variant="ghost"
@@ -242,7 +217,7 @@ export function Navbar() {
                   Manage Jobs
                 </Link>
               )}
-              
+
               {/* User info and logout in mobile menu */}
               {user && (
                 <div className="px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-2 pt-3">
@@ -250,7 +225,7 @@ export function Navbar() {
                     user.email}
                 </div>
               )}
-              
+
               <Button
                 onClick={() => {
                   handleLogout();
