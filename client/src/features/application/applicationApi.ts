@@ -142,7 +142,7 @@ export const applicationApi = createApi({
     }),
     startScoring: builder.mutation<Application, string>({
       query: (id) => ({
-        url: `applications/${id}/start-scoring`,
+        url: `applications/jobs/${id}/start-scoring`,
         method: "PATCH",
       }),
       invalidatesTags: ["Application"],

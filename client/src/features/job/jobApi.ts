@@ -146,13 +146,7 @@ export const jobApi = createApi({
       }),
       invalidatesTags: ["Job"],
     }),
-    startScoring: builder.mutation<Job, string>({
-      query: (id) => ({
-        url: `/jobs/${id}/start-scoring`,
-        method: "PATCH",
-      }),
-      invalidatesTags: ["Job"],
-    }),
+
     aiSearchJobs: builder.mutation<any, { query: string }>({
       query: (data) => ({
         url: "/jobs/ai-search",
@@ -170,6 +164,5 @@ export const {
   useCreateJobMutation,
   useUpdateJobMutation,
   useDeleteJobMutation,
-  useStartScoringMutation,
   useAiSearchJobsMutation,
 } = jobApi;

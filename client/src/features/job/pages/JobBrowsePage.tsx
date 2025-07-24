@@ -62,7 +62,7 @@ export function JobBrowsePage() {
 
   // Get current user from Redux store
   const currentUser = useSelector((state: RootState) => state.auth.user);
-  
+
   // Use streaming AI search hook
   const {
     state: streamingState,
@@ -237,7 +237,9 @@ export function JobBrowsePage() {
       <div className="mb-6 sm:mb-8">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">Find Your Next Opportunity</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">
+              Find Your Next Opportunity
+            </h1>
             <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Browse through available job opportunities
             </p>
@@ -282,13 +284,17 @@ export function JobBrowsePage() {
                   isAiMode ? "animate-pulse text-white" : "text-current"
                 } ${isTransitioning ? "animate-spin" : ""}`}
               />
-              <span className="hidden sm:inline">{isTransitioning ? "Switching..." : "Job Search with AI"}</span>
-              <span className="sm:hidden">{isTransitioning ? "Switching..." : "AI Search"}</span>
+              <span className="hidden sm:inline">
+                {isTransitioning ? "Switching..." : "Start with HiRa"}
+              </span>
+              <span className="sm:hidden">
+                {isTransitioning ? "Switching..." : "HiRa Search"}
+              </span>
             </Button>
           </div>
         </CardHeader>
         <CardContent className="relative overflow-hidden">
-          {/* Animated background particles for AI mode */}
+          {/* Animated background particles for HiRa mode */}
           {isAiMode && (
             <div className="absolute inset-0 pointer-events-none">
               {[...Array(6)].map((_, i) => (
@@ -382,7 +388,7 @@ export function JobBrowsePage() {
                     </div>
 
                     <div className="mt-4 flex justify-end">
-                      <Button 
+                      <Button
                         onClick={handleAiSearch}
                         disabled={streamingState.isSearching || !aiQuery.trim()}
                         className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
@@ -391,15 +397,25 @@ export function JobBrowsePage() {
                           <div className="flex items-center">
                             <div className="relative mr-2">
                               <div className="h-3 w-3 sm:h-4 sm:w-4 rounded-full border border-white border-t-transparent animate-spin" />
-                              <SparklesIcon className="absolute inset-0 h-3 w-3 sm:h-4 sm:w-4 text-white animate-pulse" style={{ animationDuration: "2s" }} />
+                              <SparklesIcon
+                                className="absolute inset-0 h-3 w-3 sm:h-4 sm:w-4 text-white animate-pulse"
+                                style={{ animationDuration: "2s" }}
+                              />
                             </div>
-                            <span className="hidden sm:inline">AI Searching...</span>
+                            <span className="hidden sm:inline">
+                              AI Searching...
+                            </span>
                             <span className="sm:hidden">Searching...</span>
                           </div>
                         ) : (
                           <>
-                            <SparklesIcon className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-pulse" style={{ animationDuration: "3s" }} />
-                            <span className="hidden sm:inline">Search with AI</span>
+                            <SparklesIcon
+                              className="h-3 w-3 sm:h-4 sm:w-4 mr-2 animate-pulse"
+                              style={{ animationDuration: "3s" }}
+                            />
+                            <span className="hidden sm:inline">
+                              Search with AI
+                            </span>
                             <span className="sm:hidden">AI Search</span>
                           </>
                         )}
@@ -472,7 +488,10 @@ export function JobBrowsePage() {
                         setCurrentPage(1); // Reset to first page on type change
                       }}
                     >
-                      <SelectTrigger id="employmentType" className="w-full text-sm sm:text-base">
+                      <SelectTrigger
+                        id="employmentType"
+                        className="w-full text-sm sm:text-base"
+                      >
                         <SelectValue placeholder="All types" />
                       </SelectTrigger>
                       <SelectContent>
@@ -521,37 +540,49 @@ export function JobBrowsePage() {
       </Card>
 
       {/* Show AI loading indicator when AI search is active but no jobs received yet */}
-      {isAiMode && streamingState.isSearching && streamingState.jobs.length === 0 && !streamingState.error && (
-        <div className="text-center py-8 sm:py-12">
-          <AiLoader 
-            size="lg" 
-            text="AI is analyzing your request and finding perfect matches..."
-            className="mx-auto"
-          />
-        </div>
-      )}
+      {isAiMode &&
+        streamingState.isSearching &&
+        streamingState.jobs.length === 0 &&
+        !streamingState.error && (
+          <div className="text-center py-8 sm:py-12">
+            <AiLoader
+              size="lg"
+              text="AI is analyzing your request and finding perfect matches..."
+              className="mx-auto"
+            />
+          </div>
+        )}
 
       {/* Show streaming progress when in AI mode and search has results or completed */}
-      {isAiMode && (streamingState.jobs.length > 0 || streamingState.error || (streamingState.progress > 0 && !streamingState.isSearching)) && (
-        <StreamingSearchProgress
-          state={streamingState}
-          onStop={stopStreamingSearch}
-          onReset={() => {
-            resetStreamingSearch();
-            setAiQuery("");
-          }}
-        />
-      )}
+      {isAiMode &&
+        (streamingState.jobs.length > 0 ||
+          streamingState.error ||
+          (streamingState.progress > 0 && !streamingState.isSearching)) && (
+          <StreamingSearchProgress
+            state={streamingState}
+            onStop={stopStreamingSearch}
+            onReset={() => {
+              resetStreamingSearch();
+              setAiQuery("");
+            }}
+          />
+        )}
 
       {(isLoading || isFetching) && !isAiMode ? (
         <div className="text-center py-6 sm:py-8">
-          <p className="text-muted-foreground text-sm sm:text-base">Loading jobs...</p>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Loading jobs...
+          </p>
         </div>
       ) : (
         <>
           <div className="space-y-4 sm:space-y-6">
             <JobList
-              jobs={isAiMode && streamingState.jobs.length > 0 ? streamingState.jobs : (jobsData?.data || [])}
+              jobs={
+                isAiMode && streamingState.jobs.length > 0
+                  ? streamingState.jobs
+                  : jobsData?.data || []
+              }
               onEdit={handleEditJob}
               onDelete={handleDeleteJob}
               isAiMode={isAiMode && streamingState.jobs.length > 0}
@@ -559,26 +590,31 @@ export function JobBrowsePage() {
           </div>
 
           {/* Show different empty states for AI vs regular search */}
-          {isAiMode && !streamingState.isSearching && streamingState.progress === 100 && streamingState.jobs.length === 0 && !streamingState.error && (
-            <div className="text-center py-6 sm:py-8">
-              <div className="mb-4">
-                <SparklesIcon className="h-12 w-12 text-blue-400 mx-auto mb-2 animate-pulse" />
-                <p className="text-muted-foreground mb-4 text-sm sm:text-base px-4">
-                  No AI-matched jobs found for your query. Try refining your search or using different keywords.
-                </p>
+          {isAiMode &&
+            !streamingState.isSearching &&
+            streamingState.progress === 100 &&
+            streamingState.jobs.length === 0 &&
+            !streamingState.error && (
+              <div className="text-center py-6 sm:py-8">
+                <div className="mb-4">
+                  <SparklesIcon className="h-12 w-12 text-blue-400 mx-auto mb-2 animate-pulse" />
+                  <p className="text-muted-foreground mb-4 text-sm sm:text-base px-4">
+                    No AI-matched jobs found for your query. Try refining your
+                    search or using different keywords.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => {
+                    setAiQuery("");
+                    resetStreamingSearch();
+                  }}
+                  variant="outline"
+                  className="text-sm sm:text-base"
+                >
+                  Clear AI search
+                </Button>
               </div>
-              <Button
-                onClick={() => {
-                  setAiQuery("");
-                  resetStreamingSearch();
-                }}
-                variant="outline"
-                className="text-sm sm:text-base"
-              >
-                Clear AI search
-              </Button>
-            </div>
-          )}
+            )}
 
           {!isAiMode && jobsData && jobsData.data.length === 0 && (
             <div className="text-center py-6 sm:py-8">
@@ -599,45 +635,48 @@ export function JobBrowsePage() {
           )}
 
           {/* Show pagination only for regular search mode */}
-          {!isAiMode && jobsData && jobsData.data.length > 0 && totalPages > 1 && (
-            <div className="mt-6 sm:mt-8 flex justify-center">
-              <Pagination>
-                <PaginationContent className="gap-1 sm:gap-2">
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => {
-                        if (currentPage > 1) {
-                          handlePageChange(currentPage - 1);
-                        }
-                      }}
-                      className={`text-xs sm:text-sm ${
-                        currentPage === 1
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }`}
-                    />
-                  </PaginationItem>
+          {!isAiMode &&
+            jobsData &&
+            jobsData.data.length > 0 &&
+            totalPages > 1 && (
+              <div className="mt-6 sm:mt-8 flex justify-center">
+                <Pagination>
+                  <PaginationContent className="gap-1 sm:gap-2">
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => {
+                          if (currentPage > 1) {
+                            handlePageChange(currentPage - 1);
+                          }
+                        }}
+                        className={`text-xs sm:text-sm ${
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }`}
+                      />
+                    </PaginationItem>
 
-                  {renderPaginationItems()}
+                    {renderPaginationItems()}
 
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => {
-                        if (currentPage < totalPages) {
-                          handlePageChange(currentPage + 1);
-                        }
-                      }}
-                      className={`text-xs sm:text-sm ${
-                        currentPage === totalPages
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }`}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => {
+                          if (currentPage < totalPages) {
+                            handlePageChange(currentPage + 1);
+                          }
+                        }}
+                        className={`text-xs sm:text-sm ${
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }`}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
 
           {/* Show AI search results count */}
           {isAiMode && streamingState.jobs.length > 0 && (

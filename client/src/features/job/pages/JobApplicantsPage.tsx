@@ -40,6 +40,7 @@ import {
   Application,
   useGetJobApplicationsQuery,
   useUpdateApplicationMutation,
+  useStartScoringMutation,
 } from "@/features/application/applicationApi";
 import { ApplicationStatus } from "@/features/application/types";
 import {
@@ -54,7 +55,6 @@ import { toast } from "sonner";
 import {
   useGetJobByIdQuery,
   ScoringStatus,
-  useStartScoringMutation,
 } from "../jobApi";
 import { useGetResumeByCandidateIdQuery } from "@/features/profile/resumeApi";
 
